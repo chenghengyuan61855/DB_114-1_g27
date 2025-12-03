@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS public."BRAND"
+CREATE TABLE IF NOT EXISTS BRAND
 (
     brand_id bigserial NOT NULL,
     brand_name character varying(20) NOT NULL,
@@ -12,13 +12,13 @@ CREATE TABLE IF NOT EXISTS public."BRAND"
     CONSTRAINT BRAND_brand_name_key UNIQUE (brand_name)
 );
 
-CREATE TABLE IF NOT EXISTS public."STORE"
+CREATE TABLE IF NOT EXISTS STORE
 (
     store_id bigserial NOT NULL,
     brand_id bigint NOT NULL,
-	store_name character varying(20) COLLATE pg_catalog."default" NOT NULL,
-    store_address character varying(100) COLLATE pg_catalog."default",
-    store_phone character varying(20) COLLATE pg_catalog."default",
+	store_name character varying(20) NOT NULL,
+    store_address character varying(100),
+    store_phone character varying(20),
     is_active boolean NOT NULL DEFAULT true,
 	is_accepting_orders boolean NOT NULL DEFAULT true,
     created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -26,16 +26,16 @@ CREATE TABLE IF NOT EXISTS public."STORE"
 	is_accepting_deliveries boolean NOT NULL DEFAULT true,
 	min_order_qty int,
 	min_order_total_price int,
-	delivery_threshold_logic VARCHAR(3) NOT NULL
+	delivery_threshold_logic VARCHAR(3),
         CHECK (delivery_threshold_logic IN ('any', 'all')),
     CONSTRAINT STORE_pkey PRIMARY KEY (store_id),
     CONSTRAINT STORE_brand_id_fkey FOREIGN KEY (brand_id)
-        REFERENCES public."BRAND" (brand_id) MATCH SIMPLE
+        REFERENCES BRAND (brand_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS public."STORE_HOURS"
+CREATE TABLE IF NOT EXISTS STORE_HOURS
 (
     store_id bigint NOT NULL,
     weekday smallint NOT NULL
@@ -45,12 +45,12 @@ CREATE TABLE IF NOT EXISTS public."STORE_HOURS"
     close_time time without time zone,
     CONSTRAINT STORE_HOURS_pkey PRIMARY KEY (store_id, weekday),
     CONSTRAINT STORE_HOURS_store_id_fkey FOREIGN KEY (store_id)
-        REFERENCES public."STORE" (store_id) MATCH SIMPLE
+        REFERENCES STORE (store_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS public."APP_USER"
+CREATE TABLE IF NOT EXISTS APP_USER
 (
     user_id bigserial NOT NULL,
 	user_name character varying(20) NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS public."APP_USER"
 	CONSTRAINT USER_user_email_key UNIQUE (user_email)
 );
 
-CREATE TABLE IF NOT EXISTS public."USER_ADDRESS"
+CREATE TABLE IF NOT EXISTS USER_ADDRESS
 (
     user_id bigint NOT NULL,
 	label character varying(20) NOT NULL,
@@ -75,12 +75,12 @@ CREATE TABLE IF NOT EXISTS public."USER_ADDRESS"
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT USER_ADDRESS_pkey PRIMARY KEY (user_id, label),
 	CONSTRAINT USER_ADDRESS_user_id_fkey FOREIGN KEY (user_id)
-        REFERENCES public."APP_USER" (user_id) MATCH SIMPLE
+        REFERENCES APP_USER (user_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS public."ROLE"
+CREATE TABLE IF NOT EXISTS ROLE
 (
     role_id serial NOT NULL,
 	role_name character varying(20) NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public."ROLE"
     CONSTRAINT ROLE_pkey PRIMARY KEY (role_id)
 );
 
-CREATE TABLE IF NOT EXISTS public."USER_ROLE_ASSIGNMENT"
+CREATE TABLE IF NOT EXISTS USER_ROLE_ASSIGNMENT
 (
     user_role_id bigserial NOT NULL,
 	user_id bigint NOT NULL,
@@ -105,19 +105,19 @@ CREATE TABLE IF NOT EXISTS public."USER_ROLE_ASSIGNMENT"
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT USER_ROLE_ASSIGNMENT_pkey PRIMARY KEY (user_role_id),
 	CONSTRAINT USER_ROLE_ASSIGNMENT_user_id_fkey FOREIGN KEY (user_id)
-        REFERENCES public."APP_USER" (user_id) MATCH SIMPLE
+        REFERENCES APP_USER (user_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE,
 	CONSTRAINT USER_ROLE_ASSIGNMENT_role_id_fkey FOREIGN KEY (role_id)
-        REFERENCES public."ROLE" (role_id) MATCH SIMPLE
+        REFERENCES ROLE (role_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE,
 	CONSTRAINT USER_ROLE_ASSIGNMENT_brand_id_fkey FOREIGN KEY (brand_id)
-        REFERENCES public."BRAND" (brand_id) MATCH SIMPLE
+        REFERENCES BRAND (brand_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE,
 	CONSTRAINT USER_ROLE_ASSIGNMENT_store_id_fkey FOREIGN KEY (store_id)
-        REFERENCES public."STORE" (store_id) MATCH SIMPLE
+        REFERENCES STORE (store_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE,
 	CHECK (

@@ -1,5 +1,5 @@
 -- PRODUCT_CATEGORY：商品類別
-CREATE TABLE IF NOT EXISTS public."PRODUCT_CATEGORY"
+CREATE TABLE IF NOT EXISTS PRODUCT_CATEGORY
 (
     p_category_id        bigserial      NOT NULL,
     brand_id             bigint         NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS public."PRODUCT_CATEGORY"
     updated_at           timestamp      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT PRODUCT_CATEGORY_pkey PRIMARY KEY (p_category_id),
     CONSTRAINT PRODUCT_CATEGORY_brand_id_fkey FOREIGN KEY (brand_id)
-        REFERENCES public."BRAND"(brand_id)
+        REFERENCES BRAND(brand_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT PRODUCT_CATEGORY_display_order_chk
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public."PRODUCT_CATEGORY"
 );
 
 -- PRODUCT：商品
-CREATE TABLE IF NOT EXISTS public."PRODUCT"
+CREATE TABLE IF NOT EXISTS PRODUCT
 (
     product_id           bigserial      NOT NULL,
     brand_id             bigint         NOT NULL,
@@ -33,17 +33,17 @@ CREATE TABLE IF NOT EXISTS public."PRODUCT"
     updated_at           timestamp      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT PRODUCT_pkey PRIMARY KEY (product_id),
     CONSTRAINT PRODUCT_brand_id_fkey FOREIGN KEY (brand_id)
-        REFERENCES public."BRAND"(brand_id)
+        REFERENCES BRAND(brand_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT PRODUCT_p_category_id_fkey FOREIGN KEY (p_category_id)
-        REFERENCES public."PRODUCT_CATEGORY"(p_category_id)
+        REFERENCES PRODUCT_CATEGORY(p_category_id)
         ON UPDATE CASCADE
         ON DELETE SET NULL
 );
 
 -- STORE_PRODUCT：門市販售商品與價格
-CREATE TABLE IF NOT EXISTS public."STORE_PRODUCT"
+CREATE TABLE IF NOT EXISTS STORE_PRODUCT
 (
     store_id     bigint        NOT NULL,
     product_id   bigint        NOT NULL,
@@ -53,18 +53,18 @@ CREATE TABLE IF NOT EXISTS public."STORE_PRODUCT"
     updated_at   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT STORE_PRODUCT_pkey PRIMARY KEY (store_id, product_id),
     CONSTRAINT STORE_PRODUCT_store_id_fkey FOREIGN KEY (store_id)
-        REFERENCES public."STORE"(store_id)
+        REFERENCES STORE(store_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT STORE_PRODUCT_product_id_fkey FOREIGN KEY (product_id)
-        REFERENCES public."PRODUCT"(product_id)
+        REFERENCES PRODUCT(product_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT STORE_PRODUCT_price_chk CHECK (price >= 0)
 );
 
 -- INGREDIENT：原料
-CREATE TABLE IF NOT EXISTS public."INGREDIENT"
+CREATE TABLE IF NOT EXISTS INGREDIENT
 (
     ingredient_id   bigserial NOT NULL,
     brand_id        bigint    NOT NULL,
@@ -76,13 +76,13 @@ CREATE TABLE IF NOT EXISTS public."INGREDIENT"
     updated_at      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT INGREDIENT_pkey PRIMARY KEY (ingredient_id),
     CONSTRAINT INGREDIENT_brand_id_fkey FOREIGN KEY (brand_id)
-        REFERENCES public."BRAND"(brand_id)
+        REFERENCES BRAND(brand_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
 -- PRODUCT_INGREDIENT：商品使用哪些原料、用量
-CREATE TABLE IF NOT EXISTS public."PRODUCT_INGREDIENT"
+CREATE TABLE IF NOT EXISTS PRODUCT_INGREDIEN
 (
     product_id     bigint NOT NULL,
     ingredient_id  bigint NOT NULL,
@@ -90,17 +90,17 @@ CREATE TABLE IF NOT EXISTS public."PRODUCT_INGREDIENT"
     updated_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT PRODUCT_INGREDIENT_pkey PRIMARY KEY (product_id, ingredient_id),
     CONSTRAINT PRODUCT_INGREDIENT_product_id_fkey FOREIGN KEY (product_id)
-        REFERENCES public."PRODUCT"(product_id)
+        REFERENCES PRODUCT(product_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT PRODUCT_INGREDIENT_ingredient_id_fkey FOREIGN KEY (ingredient_id)
-        REFERENCES public."INGREDIENT"(ingredient_id)
+        REFERENCES INGREDIEN(ingredient_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
 -- INVENTORY：各門市原料庫存
-CREATE TABLE IF NOT EXISTS public."INVENTORY"
+CREATE TABLE IF NOT EXISTS INVENTORY
 (
     store_id       bigint        NOT NULL,
     ingredient_id  bigint        NOT NULL,
@@ -109,11 +109,11 @@ CREATE TABLE IF NOT EXISTS public."INVENTORY"
     updated_at     timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT INVENTORY_pkey PRIMARY KEY (store_id, ingredient_id),
     CONSTRAINT INVENTORY_store_id_fkey FOREIGN KEY (store_id)
-        REFERENCES public."STORE"(store_id)
+        REFERENCES STORE(store_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT INVENTORY_ingredient_id_fkey FOREIGN KEY (ingredient_id)
-        REFERENCES public."INGREDIENT"(ingredient_id)
+        REFERENCES INGREDIEN(ingredient_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
