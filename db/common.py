@@ -1,5 +1,5 @@
-from app.db.db_conn import db, cur, commit, rollback
-from app.db.allowed import ALLOWED_TABLES, ALLOWED_COLUMNS
+from db.conn import db, cur, commit, rollback
+from db.allowed import ALLOWED_TABLES, ALLOWED_COLUMNS
 
 def table_check(table):
     if table not in ALLOWED_TABLES:

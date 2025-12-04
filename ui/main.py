@@ -1,4 +1,5 @@
-from app.ui.ui_user import ui_login_user, ui_create_user
+from ui.user.login import ui_login_user
+from ui.user.create import ui_create_user
 
 def run():
     print("Welcome to DaTeabase 🍹")
