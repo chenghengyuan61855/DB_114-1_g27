@@ -1,4 +1,4 @@
-from db.conn import db, cur, commit, rollback
+from db import conn
 from db.allowed import ALLOWED_TABLES, ALLOWED_COLUMNS
 
 def table_check(table):
@@ -31,8 +31,8 @@ def fetch(table, conditions=None):
             params.append(value)
         sql += " WHERE " + " AND ".join(clauses)
 
-    cur.execute(sql, params)
-    return cur.fetchall()
+    conn.cur.execute(sql, params)
+    return conn.cur.fetchall()
 
 def insert(table, data):
     table_check(table)
@@ -50,12 +50,12 @@ def insert(table, data):
         placeholders.append("%s")
 
     sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join(placeholders)}) RETURNING *"
-    cur.execute(sql, values)
-    result = cur.fetchone()
+    conn.cur.execute(sql, values)
+    result = conn.cur.fetchone()
     if result is None:
-        rollback()
+        conn.rollback()
         raise RuntimeError("Insert operation failed, no row returned")
-    commit()
+    conn.commit()
     return result
 
 def delete(table, conditions):
@@ -73,8 +73,8 @@ def delete(table, conditions):
         params.append(value)
 
     sql += " WHERE " + " AND ".join(clauses)
-    cur.execute(sql, params)
-    commit()
+    conn.cur.execute(sql, params)
+    conn.commit()
 
 def exists(table, conditions) -> bool:
     table_check(table)
@@ -90,8 +90,8 @@ def exists(table, conditions) -> bool:
             params.append(value)
         sql += " WHERE " + " AND ".join(clauses)
 
-    cur.execute(sql, params)
-    return cur.fetchone() is not None
+    conn.cur.execute(sql, params)
+    return conn.cur.fetchone() is not None
 
 def update(table, data, conditions):
     table_check(table)
@@ -120,7 +120,7 @@ def update(table, data, conditions):
         WHERE {' AND '.join(where_clauses)}
         RETURNING *
     """
-    cur.execute(sql, params)
-    row = cur.fetchone()
-    commit()
+    conn.cur.execute(sql, params)
+    row = conn.cur.fetchone()
+    conn.commit()
     return row
