@@ -46,3 +46,7 @@ def close():
         cur.close()
     if db:
         db.close()
+
+def rollback():
+    if db:
+        db.rollback()
