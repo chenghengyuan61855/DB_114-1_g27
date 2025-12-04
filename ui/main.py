@@ -3,11 +3,11 @@ from ui.user.create import ui_create_user
 
 def run():
     print("Welcome to DaTeabase 🍹")
-    print("=====================")
-    print("1. Login")
-    print("2. Create User")
-    print("q. Quit")
     while True:
+        print("=====================")
+        print("1. Login")
+        print("2. Create User")
+        print("q. Quit")
         command = input("Enter command: ").strip()
         if command == "1":
             user_id = ui_login_user()
