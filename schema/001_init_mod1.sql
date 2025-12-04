@@ -54,14 +54,14 @@ CREATE TABLE IF NOT EXISTS APP_USER
 (
     user_id bigserial NOT NULL,
 	user_name character varying(20) NOT NULL,
-    user_phone character varying(20),
+    user_phone character varying(20) NOT NULL,
     user_email character varying(50),
 	password_hash varchar(100) NOT NULL,
     is_active boolean NOT NULL DEFAULT true,
     created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT USER_pkey PRIMARY KEY (user_id),
-	CONSTRAINT USER_user_name_key UNIQUE (user_name),
+	CONSTRAINT USER_user_phone_key UNIQUE (user_phone),
 	CONSTRAINT USER_user_email_key UNIQUE (user_email)
 );
 
