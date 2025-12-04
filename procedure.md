@@ -83,7 +83,7 @@ pip install psycopg2-binary python-dotenv
 ```env
 DB_PASSWORD=你的postgres密碼
 ```
-⚠️ 不要有空格或引號
+⚠️ 不要有空格或引號  
 .env會被.gitignore忽略，其他人無法存取你的本地postgre密碼
 
 ### 3️⃣ 初始化資料庫
@@ -143,6 +143,7 @@ UI 只負責三件事：
 3. 呼叫 DB function
 
 ✅ 回傳 id / status  
+✅ 建議任何 input 後都 check_cancel() 一次 （詳見 ui.helper ）
 🚫 不直接處理 DB row  
 🚫 不寫 SQL
 
