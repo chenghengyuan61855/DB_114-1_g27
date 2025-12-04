@@ -3,8 +3,10 @@ from app.ui.ui_main import run
 
 def main():
     connect()
-    run()
-    close()
+    try: 
+        run()
+    finally:
+        close()
 
 if __name__ == "__main__":
     main()
