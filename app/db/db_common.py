@@ -1,4 +1,4 @@
-from app.db.db_conn import db, cur, commit
+from app.db.db_conn import db, cur, commit, rollback
 from app.db.allowed import ALLOWED_TABLES, ALLOWED_COLUMNS
 
 def table_check(table):
@@ -52,6 +52,9 @@ def insert(table, data):
     sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join(placeholders)}) RETURNING *"
     cur.execute(sql, values)
     result = cur.fetchone()
+    if result is None:
+        rollback()
+        raise RuntimeError("Insert operation failed, no row returned")
     commit()
     return result
 
