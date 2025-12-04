@@ -24,7 +24,7 @@ def ui_create_user():
             return
 
         if phone_check(user_phone):
-            if exists("app_user", {"user_phone": user_phone}):
+            if exists("APP_USER", {"user_phone": user_phone}):
                 print("❌ Phone number already registered.")
                 continue
             break
@@ -42,7 +42,7 @@ def ui_create_user():
         if not email_check(user_email):
             continue
 
-        if exists("app_user", {"user_email": user_email}):
+        if exists("APP_USER", {"user_email": user_email}):
             print("❌ Email already registered.")
             continue
 

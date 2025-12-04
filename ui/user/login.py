@@ -15,7 +15,7 @@ def ui_login_user():
         if not phone_check(user_phone):
             continue
 
-        if not exists("app_user", {"user_phone": user_phone}):
+        if not exists("APP_USER", {"user_phone": user_phone}):
             print("❌ Phone number not registered.")
             print("If you don't have an account, please type ':q' to cancel and create a new user.")
             continue
