@@ -1,5 +1,5 @@
 from db.common import exists
-from db.user.create import create_user
+from db.user.create import db_create_user
 from ui.helper import cancel_check
 from ui.user.helper import hash_pwd, name_check, phone_check, email_check, password_check
 
@@ -68,7 +68,7 @@ def ui_create_user():
 
     # -------- DB input --------
     try:
-        user_id = create_user(user_name, user_email, user_phone, password_hash)
+        user_id = db_create_user(user_name, user_email, user_phone, password_hash)
         print(f"\n✅ User created with ID: {user_id}")
     except ValueError as ve:
         print(f"❌ Error: {ve}")

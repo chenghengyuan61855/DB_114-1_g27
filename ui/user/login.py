@@ -1,5 +1,5 @@
 from db.common import exists
-from db.user.login import login_user
+from db.user.login import db_login_user
 from ui.helper import cancel_check
 from ui.user.helper import hash_pwd, phone_check, password_check
 
@@ -32,7 +32,7 @@ def ui_login_user():
             continue
 
         password_hash = hash_pwd(password)
-        user_id = login_user(user_phone, password_hash)
+        user_id = db_login_user(user_phone, password_hash)
 
         if user_id is None:
             print("❌ Incorrect password. Please try again.")

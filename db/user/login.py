@@ -1,6 +1,6 @@
 from db.common import fetch
 
-def login_user(user_phone, password_hash):
+def db_login_user(user_phone, password_hash):
     users = fetch("app_user", {"user_phone": user_phone, "password_hash": password_hash, "is_active": True})
     if not users:
         return None
