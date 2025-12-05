@@ -2,7 +2,7 @@ from ui.user.login import ui_login_user
 from ui.user.create import ui_create_user
 
 def run():
-    print("Welcome to DaTeabase 🍹")
+    print("Welcome to daTEAbase 🍹")
     while True:
         print("=====================")
         print("1. Login")
