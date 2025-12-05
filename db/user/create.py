@@ -1,4 +1,4 @@
-from db.common import insert, exists
+from db.crud import insert, exists
 
 def db_create_user(user_name, user_email, user_phone, password_hash):
     if exists("APP_USER", {"user_phone": user_phone}):

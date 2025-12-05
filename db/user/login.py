@@ -1,4 +1,4 @@
-from db.common import fetch
+from db.crud import fetch
 
 def db_login_user(user_phone, password_hash):
     users = fetch("APP_USER", {"user_phone": user_phone, "password_hash": password_hash, "is_active": True})

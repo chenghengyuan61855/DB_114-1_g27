@@ -122,3 +122,19 @@ ALLOWED_COLUMNS = {
                           "rating","comment","created_at","updated_at",
     },
 }
+
+def table_check(table):
+    if table not in ALLOWED_TABLES:
+        raise ValueError(f"Invalid table: {table}")
+    
+def column_check(table, column):
+    if column not in ALLOWED_COLUMNS[table]:
+        raise ValueError(f"Invalid column '{column}' for table '{table}'")
+
+def data_check(op_type:str , data):
+    if not data:
+        raise ValueError(f"{op_type} data cannot be empty")
+    
+def conditions_check(op_type:str , conditions):
+    if not conditions:
+        raise ValueError(f"{op_type} without conditions is not allowed")
