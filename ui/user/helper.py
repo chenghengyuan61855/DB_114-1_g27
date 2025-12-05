@@ -2,10 +2,18 @@ import hashlib
 
 def hash_pwd(password: str) -> str:
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    
+def allowed_chars_check(input_str: str) -> bool:
+    allowed_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!.@#$%^&*()-_=+`~")
+    for char in input_str:
+        if char not in allowed_chars:
+            print(f"❌ Invalid character detected: '{char}'")
+            print("Allowed characters are letters, digits, and !@#$%^&*()-_=+`~")
+            return False
+    return True
 
 def name_check(user_name: str) -> bool:
-    if "\\" in user_name:
-        print("❌ Invalid character '\\' in user name.")
+    if not allowed_chars_check(user_name):
         return False
 
     if not (3 <= len(user_name) <= 20):
@@ -15,10 +23,6 @@ def name_check(user_name: str) -> bool:
     return True
 
 def phone_check(user_phone: str) -> bool:
-    if "\\" in user_phone:
-        print("❌ Invalid character '\\' in phone number.")
-        return False
-
     if len(user_phone) != 10 or not user_phone.isdigit() or not user_phone.startswith("09"):
         print("❌ Invalid phone number format, expected 10 digits starting with '09'.")
         return False
@@ -26,8 +30,7 @@ def phone_check(user_phone: str) -> bool:
     return True
 
 def password_check(password: str) -> bool:
-    if "\\" in password:
-        print("❌ Invalid character '\\' in password.")
+    if not allowed_chars_check(password):
         return False
 
     if len(password) < 6:
@@ -37,8 +40,7 @@ def password_check(password: str) -> bool:
     return True
 
 def email_check(user_email: str) -> bool:
-    if "\\" in user_email:
-        print("❌ Invalid character '\\' in email.")
+    if not allowed_chars_check(user_email):
         return False
 
     if len(user_email) > 50:
