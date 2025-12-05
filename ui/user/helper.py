@@ -8,7 +8,7 @@ def allowed_chars_check(input_str: str) -> bool:
     for char in input_str:
         if char not in allowed_chars:
             print(f"❌ Invalid character detected: '{char}'")
-            print("Allowed characters are letters, digits, and !@#$%^&*()-_=+`~")
+            print("Allowed characters are letters, digits, and !.@#$%^&*()-_=+`~")
             return False
     return True
 
