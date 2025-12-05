@@ -2,7 +2,7 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 
-DB_NAME = "DaTeabase"
+DB_NAME = "daTEAbase"
 DB_USER = "postgres"
 DB_HOST = "localhost"
 DB_PORT = 5432
