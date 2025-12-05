@@ -107,6 +107,7 @@ DB_PASSWORD=你的postgres密碼
 因 db.crud 已經處理所有需要與資料庫連線之SQL，所有 DB function 檔案需要 import
 ```python
 from db.crud import insert, update, fetch, exists, delete
+```
 資料庫連線由 main.py 統一負責呼叫 connect()，DB 層函式不得自行連線。
 
 ## 四、DB 層開發規範
@@ -128,7 +129,7 @@ fetch("PRODUCT", {"brand_id": 2})
 exists("STORE", {"store_id": 5})
 delete("INGREDEINT", {"ingredient_id": 10}
 ```
-⚠️ 表名必須大寫，欄位名必需小寫
+⚠️ 表名必須大寫，欄位名必須小寫
 
 🚫 DB 層禁止事項
 - 禁止 input()
