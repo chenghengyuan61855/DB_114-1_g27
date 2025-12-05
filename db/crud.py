@@ -74,18 +74,18 @@ def fetch(table, conditions=None):
     table_check(table)
 
     sql = f"SELECT * FROM {table}"
-    sql_result = join_conditions(sql, table, conditions)
+    sql, params = join_conditions(sql, table, conditions)
 
-    conn.cur.execute(*sql_result)
+    conn.cur.execute(sql, params)
     return conn.cur.fetchall()
 
 def exists(table, conditions=None) -> bool:
     table_check(table)
 
     sql = f"SELECT 1 FROM {table}"
-    sql_result = join_conditions(sql, table, conditions)
+    sql, params = join_conditions(sql, table, conditions)
 
-    conn.cur.execute(*sql_result)
+    conn.cur.execute(sql, params)
     return conn.cur.fetchone() is not None
 
 def delete(table, conditions):
@@ -93,7 +93,7 @@ def delete(table, conditions):
     conditions_check("DELETE", conditions)
 
     sql = f"DELETE FROM {table}"
-    sql_result = join_conditions(sql, table, conditions)
+    sql, params = join_conditions(sql, table, conditions)
 
-    conn.cur.execute(*sql_result)
+    conn.cur.execute(sql, params)
     conn.commit()
