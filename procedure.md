@@ -41,10 +41,10 @@ DB_114-1_g27/
 │
 ├─ db/ ← ✅ 資料庫層
 │ ├─ conn.py ← DB 連線、commit、rollback
-│ ├─ common.py ← 通用 CRUD（insert / update / fetch / exists）
+│ ├─ crud.py ← 通用 CRUD（insert / update / fetch / exists / delete）
 │ ├─ allowed.py ← 白名單（防 SQL injection）
-│ ├─ user/ ← user 相關 DB function (Optional:若有其他helper function需要定義，可在該子資料夾創helper.py)
-│ └─ 其他功能待補(請新增folder如custromer, brand, admin, etc.並將相關function置入其中)
+│ ├─ user/ ← user 相關 DB function (Optional :若有其他 helper function 需要定義，可在該子資料夾創 helper.py)
+│ └─ 其他功能待補(請新增folder如custromer, brand, admin, etc.並將相關 function 置入其中)
 |
 ├─ ui/ ← ✅ 使用者介面層
 │ ├─ helper.py ← cancel_check 等共用工具
@@ -104,9 +104,9 @@ DB_PASSWORD=你的postgres密碼
 
 ### 4️⃣ 資料庫連線方式
 
-因 db.common 已經處理所有需要與資料庫連線之SQL，所有 DB function 檔案需要 import
+因 db.crud 已經處理所有需要與資料庫連線之SQL，所有 DB function 檔案需要 import
 ```python
-from db.common import insert, fetch, delete, exists, update
+from db.crud import insert, fetch, delete, exists, update
 ```
 資料庫連線由 main.py 統一負責呼叫 connect()，DB 層函式不得自行連線。
 
@@ -120,13 +120,14 @@ db/store/create.py
 db/order/create.py
 ```
 
-✅ CRUD 一律使用 db.common
+✅ CRUD 一律使用 db.crud
 範例：
 ```python
-insert("APP_USER", {...})
-update("STORE", {...}, {"store_id": 1})
+insert("APP_USER", {"user_name": "Alice", ...})
+update("STORE", {"brand_id": 8, ...}, {"store_id": 1})
 fetch("PRODUCT", {"brand_id": 2})
 exists("STORE", {"store_id": 5})
+delete("INGREDEINT", {"ingredient_id": 10}
 ```
 ⚠️ 表名必須大寫，欄位名必需小寫
 
@@ -168,7 +169,7 @@ python main.py
   ```python
   __init__.py
   ```
-  以確保 import 順利
+ (可為空白檔案) 以確保 import 順利
   
 ### 檔名
 - xxx.py → DB / UI function
@@ -195,9 +196,9 @@ python main.py
   ui_create_store()
   ui_set_store_hours()
   ```
-⚠️ 為防止 override ， DB 層與 UI 層 function 不得使用相同名稱，
+⚠️ 為防止內容覆寫， DB 層與 UI 層 function 不得使用相同名稱，
 例如：請使用 db_create_user() 與 ui_create_user()  
-(若為 helper function 且確定不會 override，可選擇不加前綴)
+(若為 helper function 且確定不會重名，可選擇不加前綴)
   
 ### SQL 檔案
 ```python
