@@ -195,9 +195,9 @@ python main.py
   ui_create_store()
   ui_set_store_hours()
   ```
-  (若為 helper function 且確定不會 override，可選擇不加前綴)
-⚠️ 為防止override ， DB 層與 UI 層 function 不得使用相同名稱，
-例如：請使用 db_create_user() 與 ui_create_user()
+⚠️ 為防止 override ， DB 層與 UI 層 function 不得使用相同名稱，
+例如：請使用 db_create_user() 與 ui_create_user()  
+(若為 helper function 且確定不會 override，可選擇不加前綴)
   
 ### SQL 檔案
 ```python
