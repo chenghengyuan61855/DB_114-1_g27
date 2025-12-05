@@ -106,8 +106,7 @@ DB_PASSWORD=你的postgres密碼
 
 因 db.crud 已經處理所有需要與資料庫連線之SQL，所有 DB function 檔案需要 import
 ```python
-from db.crud import insert, fetch, delete, exists, update
-```
+from db.crud import insert, update, fetch, exists, delete
 資料庫連線由 main.py 統一負責呼叫 connect()，DB 層函式不得自行連線。
 
 ## 四、DB 層開發規範
