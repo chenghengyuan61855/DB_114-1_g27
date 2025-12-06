@@ -9,8 +9,8 @@ def db_view_user_profile(user_id):
     profile = {
         "user_id": row[0],
         "user_name": row[1],
-        "user_email": row[2],
-        "user_phone": row[3],
+        "user_phone": row[2],
+        "user_email": row[3],
         "is_active": row[5],
     }
     return profile
