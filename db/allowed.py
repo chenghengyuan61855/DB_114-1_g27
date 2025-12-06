@@ -100,9 +100,9 @@ ALLOWED_COLUMNS = {
 
     # ================== Order / Rating ==================
     "ORDERS": {"order_id","user_id","store_id","order_status","order_type",
-               "placed_at","accepted_at","completed_at","cancelled_at",
-               "total_price","payment_status","payment_method",
-               "created_at","updated_at"
+               "delivery_address","reciver_name","reciver_phone",
+               "placed_at","accepted_at","completed_at","rejected_reason",
+               "total_price","payment_status","payment_method"
     },
 
     "ORDER_ITEM": {"order_item_id","order_id","product_id","unit_price","qty",
