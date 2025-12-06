@@ -28,6 +28,7 @@ def connect():
             host=DB_HOST,
             port=DB_PORT
         )
+        db.autocommit = True
         cur = db.cursor()
         print("Successfully connected to DBMS.")
     except psycopg2.Error as e:
