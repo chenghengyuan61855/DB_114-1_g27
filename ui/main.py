@@ -1,5 +1,6 @@
 from ui.user.login import ui_login_user
 from ui.user.create import ui_create_user
+from menu.main_menu import main_menu
 
 def run():
     print("Welcome to daTEAbase 🍹")
@@ -11,7 +12,8 @@ def run():
         command = input("Enter command: ").strip()
         if command == "1":
             user_id = ui_login_user()
-            # TODO: go to menu.main_menu.py if login successful
+            if user_id:
+                main_menu(user_id)
         elif command == "2":
             ui_create_user()
         elif command == "q":
