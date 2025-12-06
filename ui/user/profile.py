@@ -1,9 +1,9 @@
-from db.user.profile import db_view_user_profile, db_update_user_profile
+from db.user.profile import db_fetch_user_profile, db_update_user_profile
 from ui.helper import cancel_check
 from ui.user.helper import name_check, email_check, password_check, hash_pwd
 
 def ui_view_user_profile(user_id):
-    profile = db_view_user_profile(user_id)
+    profile = db_fetch_user_profile(user_id)
     if not profile:
         print("Profile not found.")
         return
@@ -11,21 +11,20 @@ def ui_view_user_profile(user_id):
     print("User Profile:")
     print(f"ID: {profile['user_id']}")
     print(f"Name: {profile['user_name']}")
-    print(f"Email: {profile['user_email']}")
     print(f"Phone: {profile['user_phone']}")
+    print(f"Email: {profile['user_email']}")
     print(f"Active: {profile['is_active']}")
 
 def ui_update_user_profile(user_id):
     print("=== Update User Profile ===")
-    print("(Leave blank to keep current value)")
+    print("(Leave blank and press enter to keep current value)")
     print("(Type ':q' in any input to cancel profile update)")
    
-    profile = db_view_user_profile(user_id)
+    profile = db_fetch_user_profile(user_id)
     if not profile:
         print("Profile not found.")
         return
     
-
     print(f"Current Name: {profile['user_name']}")
     while True:
         new_name = input("New Name: ").strip()

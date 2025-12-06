@@ -1,6 +1,6 @@
 from db.crud import fetch, update
 
-def db_view_user_profile(user_id):
+def db_fetch_user_profile(user_id):
     users = fetch("APP_USER", {"user_id": user_id})
     if not users:
         return None
@@ -11,6 +11,7 @@ def db_view_user_profile(user_id):
         "user_name": row[1],
         "user_phone": row[2],
         "user_email": row[3],
+        "password_hash": row[4],
         "is_active": row[5],
     }
     return profile
