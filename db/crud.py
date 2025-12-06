@@ -65,10 +65,13 @@ def update(table, data, conditions):
         raise RuntimeError("Update operation failed, no row returned")
     return row
 
-def fetch(table, conditions=None):
+def fetch(table, conditions=None, order_by=None):
     table_check(table)
     sql = f"SELECT * FROM {table}"
     sql, params = join_conditions(sql, table, conditions)
+    if order_by:
+        sql += f" ORDER BY {order_by}"
+        
     conn.cur.execute(sql, params)
     return conn.cur.fetchall()
 

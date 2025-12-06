@@ -1,0 +1,21 @@
+from ui.helper import cancel_check
+from db.order.show_brand import ui_show_brand_list
+from db.order.show_store import ui_show_order_accepting_stores, ui_show_delivery_accepting_stores
+from ui.order.select_type import ui_select_order_type
+
+def ui_place_order():
+    print("\n=== Place Order ===")
+    print("(Type ':q' in any input to cancel order placement)\n")
+
+    ui_show_brand_list()
+    brand_id = input("Enter Brand ID to select a brand (or leave blank to view all stores): ").strip()
+    if cancel_check(brand_id, "Order Placement"):
+        return
+    
+    if brand_id == "":
+        brand_id = None
+
+    
+        
+        
+        
