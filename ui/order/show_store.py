@@ -1,7 +1,7 @@
 from db.crud import fetch
 
-def db_show_stores(brand_id=None, criterias = dict):
-    conditions = criterias
+def ui_show_order_accepting_stores(brand_id=None, criterias=None):
+    conditions = {}
     if brand_id is not None:
         conditions["brand_id"] = brand_id
 
@@ -18,7 +18,7 @@ def db_show_stores(brand_id=None, criterias = dict):
 
     return store_list
 
-def db_show_delivery_accepting_stores(brand_id=None):
+def ui_show_delivery_accepting_stores(brand_id=None):
     criteria = {}
     if brand_id is not None:
         criteria["brand_id"] = brand_id
