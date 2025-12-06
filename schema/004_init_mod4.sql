@@ -56,14 +56,10 @@ CREATE TABLE IF NOT EXISTS ORDER_ITEM
         REFERENCES ORDERS(order_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    CONSTRAINT ORDER_ITEM_unit_price_fkey FOREIGN KEY (unit_price)
-        REFERENCES STORE_PRODUCT(price)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
     CONSTRAINT ORDER_ITEM_product_id_fkey FOREIGN KEY (product_id)
         REFERENCES PRODUCT(product_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        ON UPDATE NO ACTION
+        ON DELETE NO ACIION,
     CONSTRAINT ORDER_ITEM_unit_price_chk CHECK (unit_price >= 0),
     CONSTRAINT ORDER_ITEM_qty_chk CHECK (qty > 0),
     CONSTRAINT ORDER_ITEM_line_total_chk CHECK (line_total_price >= 0)
@@ -114,3 +110,4 @@ CREATE TABLE IF NOT EXISTS ORDER_ITEM_RATING
         ON DELETE CASCADE,
     CONSTRAINT ORDER_ITEM_RATING_rating_chk CHECK (order_item_rating BETWEEN 1 AND 5)
 );
+
