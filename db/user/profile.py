@@ -16,5 +16,5 @@ def db_view_user_profile(user_id):
     return profile
 
 def db_update_user_profile(user_id, updates):
-    update("APP_USER", updates, {"user_id": user_id})
-    return True
+    updated_rows = update("APP_USER", updates, {"user_id": user_id})
+    return updated_rows
