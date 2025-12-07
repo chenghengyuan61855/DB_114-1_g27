@@ -34,13 +34,12 @@ def ui_login_user():
         if not password_check(password):
             continue
 
-        password_hash = hash_pwd(password)
-        user_id = db_login_user(user_phone, password_hash)
+        # ✅ 改用明文密碼驗證（db 層會用 bcrypt 比對）
+        user_id = db_login_user(user_phone, password)
 
         if user_id is None:
             print("❌ Incorrect password. Please try again.")
             continue
 
-        print(f"\n✅ Login successful! User ID: {user_id}")
-        input("\n按 Enter 繼續...")  # ← 新增這行
+        print(f"\n✅ Login successful! Welcome, User {user_id}")
         return user_id

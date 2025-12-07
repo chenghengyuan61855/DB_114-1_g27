@@ -1,7 +1,13 @@
-import hashlib
+# import hashlib
+import bcrypt  # ← 改用 bcrypt
 
 def hash_pwd(password: str) -> str:
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    """使用 bcrypt 雜湊密碼"""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_pwd(password: str, hashed: str) -> bool:
+    """驗證密碼是否正確"""
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
     
 def allowed_chars_check(input_str: str) -> bool:
     allowed_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!.@#$%^&*()-_=+`~")
