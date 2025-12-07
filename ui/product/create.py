@@ -1,3 +1,4 @@
+# ui/product/create.py
 # ============================
 # AUTHOR: KUO
 # EDIT DATE: 2025-12-07
