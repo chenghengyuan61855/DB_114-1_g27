@@ -75,6 +75,19 @@ def fetch(table, conditions=None, order_by=None):
     conn.cur.execute(sql, params)
     return conn.cur.fetchall()
 
+def selective_fetch(table, columns, conditions=None, order_by=None):
+    table_check(table)
+    for col in columns:
+        column_check(table, col)
+
+    sql = f"SELECT {', '.join(columns)} FROM {table}"
+    sql, params = join_conditions(sql, table, conditions)
+    if order_by:
+        sql += f" ORDER BY {order_by}"
+
+    conn.cur.execute(sql, params)
+    return conn.cur.fetchall()
+
 def exists(table, conditions=None) -> bool:
     table_check(table)
     sql = f"SELECT 1 FROM {table}"
