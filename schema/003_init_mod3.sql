@@ -20,25 +20,26 @@ CREATE TABLE IF NOT EXISTS OPTION_CATEGORY
 -- OPTION：單一選項（加料／甜度冰塊等）
 CREATE TABLE IF NOT EXISTS OPTION
 (
-    option_id      bigserial     NOT NULL,
-    o_category_id  bigint        NOT NULL,
-    option_name    varchar(100)  NOT NULL,
-    price_adjust   int           NOT NULL DEFAULT 0,
-    ingredient_id  bigint,
-    usage_qty      int,
-    is_active      boolean       NOT NULL DEFAULT true,
-    created_at     timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    option_id       bigserial    NOT NULL,
+    o_category_id   bigint       NOT NULL,
+    option_name     varchar(20)  NOT NULL,
+    price_adjust    int          NOT NULL DEFAULT 0
+        CHECK (price_adjust >= -1000 AND price_adjust <= 1000),
+    -- ⚠️ 暫時移除 ingredient_id（因為 INGREDIENT 表尚未建立）
+    -- ingredient_id   bigint,
+    is_active       boolean      NOT NULL DEFAULT true,
+    created_at      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT OPTION_pkey PRIMARY KEY (option_id),
     CONSTRAINT OPTION_o_category_id_fkey FOREIGN KEY (o_category_id)
         REFERENCES OPTION_CATEGORY(o_category_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT OPTION_ingredient_id_fkey FOREIGN KEY (ingredient_id)
-        REFERENCES INGREDIENT(ingredient_id)
-        ON UPDATE SET NULL
-        ON DELETE SET NULL,
-    CONSTRAINT OPTION_usage_qty_chk CHECK (usage_qty IS NULL OR usage_qty >= 0)
+        ON DELETE CASCADE
+    -- ⚠️ 暫時移除此外鍵約束
+    -- CONSTRAINT OPTION_ingredient_id_fkey FOREIGN KEY (ingredient_id)
+    --     REFERENCES INGREDIENT(ingredient_id)
+    --     ON UPDATE CASCADE
+    --     ON DELETE SET NULL
 );
 
 -- BRAND_PRODUCT_OPTION_RULE：商品在某選項群組的可選數量 & 預設選項

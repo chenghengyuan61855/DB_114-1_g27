@@ -32,46 +32,70 @@ def db_create_option_category(brand_id, o_category_name, display_order=None):
     return row[0]  # o_category_id
 
 
-def db_create_option(o_category_id, option_name, price_adjust, ingredient_id=None, usage_qty=None):
-    """建立選項（如：無糖、半糖、全糖）
+def db_create_option(o_category_id, option_name, price_adjust=0):
+    """建立選項
     
     Args:
         o_category_id: 選項分類 ID
         option_name: 選項名稱
-        price_adjust: 價格調整（可為負值表示優惠）
-        ingredient_id: 原料 ID（可選，如果選項需要使用特定原料）
-        usage_qty: 原料使用量（可選）
+        price_adjust: 價格調整（-1000 到 1000）
+        # ⚠️ 暫時移除 ingredient_id 參數
     
     Returns:
         option_id: 新建立的選項 ID
-    
-    Raises:
-        ValueError: 參數無效
     """
-    if not option_name or len(option_name) > 50:
-        raise ValueError("Option name must be 1-50 characters")
-    
-    if price_adjust is None:
-        price_adjust = 0
-    
     if price_adjust < -1000 or price_adjust > 1000:
         raise ValueError("Price adjustment must be between -1000 and 1000")
-    
-    if (ingredient_id is not None and usage_qty is None) or (ingredient_id is None and usage_qty is not None):
-        raise ValueError("Both ingredient_id and usage_qty must be provided together or both None")
-    
-    if usage_qty is not None and usage_qty < 0:
-        raise ValueError("Usage quantity cannot be negative")
     
     row = insert("OPTION", {
         "o_category_id": o_category_id,
         "option_name": option_name,
         "price_adjust": price_adjust,
-        "ingredient_id": ingredient_id,
-        "usage_qty": usage_qty,
+        # ⚠️ 暫時移除 "ingredient_id": ingredient_id,
         "is_active": True,
     })
-    return row[0]  # option_id
+    return row[0]
+
+# def db_create_option(o_category_id, option_name, price_adjust, ingredient_id=None, usage_qty=None):
+#     """建立選項（如：無糖、半糖、全糖）
+    
+#     Args:
+#         o_category_id: 選項分類 ID
+#         option_name: 選項名稱
+#         price_adjust: 價格調整（可為負值表示優惠）
+#         ingredient_id: 原料 ID（可選，如果選項需要使用特定原料）
+#         usage_qty: 原料使用量（可選）
+    
+#     Returns:
+#         option_id: 新建立的選項 ID
+    
+#     Raises:
+#         ValueError: 參數無效
+#     """
+#     if not option_name or len(option_name) > 50:
+#         raise ValueError("Option name must be 1-50 characters")
+    
+#     if price_adjust is None:
+#         price_adjust = 0
+    
+#     if price_adjust < -1000 or price_adjust > 1000:
+#         raise ValueError("Price adjustment must be between -1000 and 1000")
+    
+#     if (ingredient_id is not None and usage_qty is None) or (ingredient_id is None and usage_qty is not None):
+#         raise ValueError("Both ingredient_id and usage_qty must be provided together or both None")
+    
+#     if usage_qty is not None and usage_qty < 0:
+#         raise ValueError("Usage quantity cannot be negative")
+    
+#     row = insert("OPTION", {
+#         "o_category_id": o_category_id,
+#         "option_name": option_name,
+#         "price_adjust": price_adjust,
+#         "ingredient_id": ingredient_id,
+#         "usage_qty": usage_qty,
+#         "is_active": True,
+#     })
+#     return row[0]  # option_id
 
 
 def db_create_brand_product_option_rule(brand_id, product_id, o_category_id, min_select, max_select, default_option_id=None):

@@ -53,7 +53,7 @@ def ui_create_option(o_category_id):
     print("(Type ':q' to cancel)\n")
     
     while True:
-        option_name = input("Option Name (e.g., No Sugar, Half Sugar): ").strip()
+        option_name = input("Option Name: ").strip()
         if cancel_check(option_name, "Option Creation"):
             return
         
@@ -61,51 +61,95 @@ def ui_create_option(o_category_id):
             break
     
     while True:
-        price_adjust_str = input("Price Adjustment (default 0): ").strip() or "0"
-        if cancel_check(price_adjust_str, "Option Creation"):
+        price_str = input("Price Adjustment (-1000 to 1000): ").strip()
+        if cancel_check(price_str, "Option Creation"):
             return
         
-        if validate_price_adjust(price_adjust_str):
-            price_adjust = int(price_adjust_str)
+        if validate_price_adjust(price_str):
+            price_adjust = int(price_str)
             break
     
-    # 詢問是否需要添加原料
-    add_ingredient = input("Add ingredient to this option? (y/n, default n): ").strip().lower()
-    ingredient_id = None
-    usage_qty = None
-    
-    if add_ingredient == 'y':
-        while True:
-            ingredient_id_str = input("Ingredient ID: ").strip()
-            if cancel_check(ingredient_id_str, "Option Creation"):
-                return
-            
-            try:
-                ingredient_id = int(ingredient_id_str)
-                break
-            except ValueError:
-                print("❌ Ingredient ID must be a number")
-        
-        while True:
-            usage_qty_str = input("Usage Quantity: ").strip()
-            if cancel_check(usage_qty_str, "Option Creation"):
-                return
-            
-            try:
-                usage_qty = int(usage_qty_str)
-                if usage_qty < 0:
-                    print("❌ Usage quantity cannot be negative")
-                    continue
-                break
-            except ValueError:
-                print("❌ Usage quantity must be a number")
+    # ⚠️ 暫時移除 ingredient_id 輸入
+    # ingredient_id_str = input("Ingredient ID (optional): ").strip() or None
+    # if ingredient_id_str:
+    #     try:
+    #         ingredient_id = int(ingredient_id_str)
+    #     except ValueError:
+    #         print("❌ Ingredient ID must be a number")
+    #         return
     
     try:
-        option_id = db_create_option(o_category_id, option_name, price_adjust, ingredient_id, usage_qty)
+        option_id = db_create_option(
+            o_category_id,
+            option_name,
+            price_adjust
+            # ⚠️ 暫時移除 ingredient_id
+        )
         print(f"✅ Option created with ID: {option_id}")
         return option_id
     except Exception as e:
         print(f"❌ Error: {e}")
+
+
+# def ui_create_option(o_category_id):
+#     """UI：建立選項"""
+#     print("\n=== Create Option ===")
+#     print("(Type ':q' to cancel)\n")
+    
+#     while True:
+#         option_name = input("Option Name (e.g., No Sugar, Half Sugar): ").strip()
+#         if cancel_check(option_name, "Option Creation"):
+#             return
+        
+#         if validate_option_name(option_name):
+#             break
+    
+#     while True:
+#         price_adjust_str = input("Price Adjustment (default 0): ").strip() or "0"
+#         if cancel_check(price_adjust_str, "Option Creation"):
+#             return
+        
+#         if validate_price_adjust(price_adjust_str):
+#             price_adjust = int(price_adjust_str)
+#             break
+    
+#     # 詢問是否需要添加原料
+#     add_ingredient = input("Add ingredient to this option? (y/n, default n): ").strip().lower()
+#     ingredient_id = None
+#     usage_qty = None
+    
+#     if add_ingredient == 'y':
+#         while True:
+#             ingredient_id_str = input("Ingredient ID: ").strip()
+#             if cancel_check(ingredient_id_str, "Option Creation"):
+#                 return
+            
+#             try:
+#                 ingredient_id = int(ingredient_id_str)
+#                 break
+#             except ValueError:
+#                 print("❌ Ingredient ID must be a number")
+        
+#         while True:
+#             usage_qty_str = input("Usage Quantity: ").strip()
+#             if cancel_check(usage_qty_str, "Option Creation"):
+#                 return
+            
+#             try:
+#                 usage_qty = int(usage_qty_str)
+#                 if usage_qty < 0:
+#                     print("❌ Usage quantity cannot be negative")
+#                     continue
+#                 break
+#             except ValueError:
+#                 print("❌ Usage quantity must be a number")
+    
+#     try:
+#         option_id = db_create_option(o_category_id, option_name, price_adjust, ingredient_id, usage_qty)
+#         print(f"✅ Option created with ID: {option_id}")
+#         return option_id
+#     except Exception as e:
+#         print(f"❌ Error: {e}")
 
 
 def ui_create_option_rule(brand_id, product_id):

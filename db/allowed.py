@@ -6,10 +6,10 @@ ALLOWED_TABLES = {
     "BRAND", "STORE", "STORE_HOURS",
     
     # ===== Product =====
-    "PRODUCT_CATEGORY", "PRODUCT", "STORE_PRODUCT",
+    "PRODUCT", "STORE_PRODUCT", # 移除 "PRODUCT_CATEGORY"
 
     # ===== Ingredient / Inventory =====
-    "INGREDIENT", "PRODUCT_INGREDIENT", "INVENTORY",
+    # "INGREDIENT", "PRODUCT_INGREDIENT", "INVENTORY",
 
     # ===== Option / Customization =====
     "OPTION_CATEGORY", "OPTION", "BRAND_PRODUCT_OPTION_RULE",
@@ -52,10 +52,10 @@ ALLOWED_COLUMNS = {
     "STORE_HOURS": {"store_id","weekday","is_open","open_time","close_time"},
 
     # ================== Product ==================
-    "PRODUCT_CATEGORY": {"p_category_id","brand_id","p_category_name",
-                         "p_category_description","display_order",
-                         "is_active","created_at","updated_at"
-    },
+    # "PRODUCT_CATEGORY": {"p_category_id","brand_id","p_category_name",
+    #                      "p_category_description","display_order",
+    #                      "is_active","created_at","updated_at"
+    # },
 
     "PRODUCT": {"product_id","brand_id","p_category_id","product_name",
                 "size","product_description","image_url",
@@ -67,15 +67,15 @@ ALLOWED_COLUMNS = {
     },
 
     # ================== Ingredient / Inventory ==================
-    "INGREDIENT": {"ingredient_id","brand_id","ingredient_name",
-                   "unit","is_active","created_at","updated_at"
-    },
+    # "INGREDIENT": {"ingredient_id","brand_id","ingredient_name",
+    #                "unit","is_active","created_at","updated_at"
+    # },
 
-    "PRODUCT_INGREDIENT": {"product_id","ingredient_id","qty","updated_at"},
+    # "PRODUCT_INGREDIENT": {"product_id","ingredient_id","qty","updated_at"},
 
-    "INVENTORY": {"store_id","ingredient_id","stock_level",
-                  "last_restock_at","updated_at"
-    },
+    # "INVENTORY": {"store_id","ingredient_id","stock_level",
+    #               "last_restock_at","updated_at"
+    # },
 
     # ================== Option / Customization ==================
     "OPTION_CATEGORY": {"o_category_id","brand_id","o_category_name",
