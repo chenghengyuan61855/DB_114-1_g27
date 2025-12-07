@@ -7,26 +7,26 @@
 
 from db.crud import insert
 
-def db_create_product_category(brand_id, p_category_name, p_category_description=None, display_order=None):
-    """建立商品分類
+# def db_create_product_category(brand_id, p_category_name, p_category_description=None, display_order=None):
+#     """建立商品分類
     
-    Args:
-        brand_id: 品牌 ID
-        p_category_name: 分類名稱
-        p_category_description: 分類描述（可選）
-        display_order: 顯示順序（可選）
+#     Args:
+#         brand_id: 品牌 ID
+#         p_category_name: 分類名稱
+#         p_category_description: 分類描述（可選）
+#         display_order: 顯示順序（可選）
     
-    Returns:
-        p_category_id: 新建立的分類 ID
-    """
-    row = insert("PRODUCT_CATEGORY", {
-        "brand_id": brand_id,
-        "p_category_name": p_category_name,
-        "p_category_description": p_category_description,
-        "display_order": display_order,
-        "is_active": True,
-    })
-    return row[0]
+#     Returns:
+#         p_category_id: 新建立的分類 ID
+#     """
+#     row = insert("PRODUCT_CATEGORY", {
+#         "brand_id": brand_id,
+#         "p_category_name": p_category_name,
+#         "p_category_description": p_category_description,
+#         "display_order": display_order,
+#         "is_active": True,
+#     })
+#     return row[0]
 
 
 def db_create_product(brand_id, product_name, p_category_id=None, size=None, 

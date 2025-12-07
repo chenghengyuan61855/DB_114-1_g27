@@ -7,31 +7,31 @@
 
 from db.crud import fetch
 
-def db_fetch_product_categories(brand_id=None):
-    """查詢商品分類
+# def db_fetch_product_categories(brand_id=None):
+#     """查詢商品分類
     
-    Args:
-        brand_id: 品牌 ID（如果指定則只查該品牌的分類）
+#     Args:
+#         brand_id: 品牌 ID（如果指定則只查該品牌的分類）
     
-    Returns:
-        list: 分類列表
-    """
-    conditions = {}
-    if brand_id:
-        conditions["brand_id"] = brand_id
+#     Returns:
+#         list: 分類列表
+#     """
+#     conditions = {}
+#     if brand_id:
+#         conditions["brand_id"] = brand_id
     
-    rows = fetch("PRODUCT_CATEGORY", conditions if conditions else None)
-    return [
-        {
-            "p_category_id": row[0],
-            "brand_id": row[1],
-            "p_category_name": row[2],
-            "p_category_description": row[3],
-            "display_order": row[4],
-            "is_active": row[5],
-        }
-        for row in rows
-    ]
+#     rows = fetch("PRODUCT_CATEGORY", conditions if conditions else None)
+#     return [
+#         {
+#             "p_category_id": row[0],
+#             "brand_id": row[1],
+#             "p_category_name": row[2],
+#             "p_category_description": row[3],
+#             "display_order": row[4],
+#             "is_active": row[5],
+#         }
+#         for row in rows
+#     ]
 
 
 def db_fetch_product(product_id=None, brand_id=None):
@@ -55,12 +55,11 @@ def db_fetch_product(product_id=None, brand_id=None):
         {
             "product_id": row[0],
             "brand_id": row[1],
-            "p_category_id": row[2],
-            "product_name": row[3],
-            "size": row[4],
-            "product_description": row[5],
-            "image_url": row[6],
-            "is_active": row[7],
+            "product_name": row[2],      # ← 調整索引（原本是 row[3]）
+            "size": row[3],               # ← 調整索引（原本是 row[4]）
+            "product_description": row[4], # ← 調整索引（原本是 row[5]）
+            "image_url": row[5],          # ← 調整索引（原本是 row[6]）
+            "is_active": row[6],          # ← 調整索引（原本是 row[7]）
         }
         for row in rows
     ]

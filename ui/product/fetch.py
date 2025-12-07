@@ -19,7 +19,7 @@ def ui_view_products(brand_id=None):
         for p in products:
             print(f"\nID: {p['product_id']} | Name: {p['product_name']}")
             print(f"  Size: {p['size'] or 'N/A'}")
-            print(f"  Category: {p['p_category_id'] or 'N/A'}")
+            # print(f"  Category: {p['p_category_id'] or 'N/A'}")
             print(f"  Description: {p['product_description'] or 'N/A'}")
             print(f"  Active: {p['is_active']}")
     except Exception as e:
