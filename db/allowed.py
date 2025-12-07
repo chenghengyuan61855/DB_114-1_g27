@@ -100,7 +100,7 @@ ALLOWED_COLUMNS = {
 
     # ================== Order / Rating ==================
     "ORDERS": {"order_id","user_id","store_id","order_status","order_type",
-               "delivery_address","reciver_name","reciver_phone",
+               "delivery_address","receiver_name","receiver_phone",
                "placed_at","accepted_at","completed_at","rejected_reason",
                "total_price","payment_status","payment_method"
     },

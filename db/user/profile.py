@@ -1,6 +1,7 @@
 from db.crud import fetch, update
 
 def db_fetch_user_profile(user_id):
+    """查詢用戶的個人資料"""
     users = fetch("APP_USER", {"user_id": user_id})
     if not users:
         return None
@@ -17,5 +18,6 @@ def db_fetch_user_profile(user_id):
     return profile
 
 def db_update_user_profile(user_id, updates):
+    """更新用戶的個人資料（姓名、email等）"""
     updated_rows = update("APP_USER", updates, {"user_id": user_id})
     return updated_rows

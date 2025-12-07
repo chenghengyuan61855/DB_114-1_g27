@@ -1,11 +1,12 @@
 # ui/product/create.py
 # ============================
 # AUTHOR: KUO
-# EDIT DATE: 2025-12-07
+# EDIT DATE: 2025-12-08
 # ASSISTED BY: Claude
 # ============================
 
-from db.product.create import db_create_product_category, db_create_product, db_create_store_product
+# from db.product.create import db_create_product_category, db_create_product, db_create_store_product
+from db.product.create import db_create_product, db_create_store_product
 from ui.helper import cancel_check
 from ui.product.helper import validate_product_name, validate_price
 
@@ -76,7 +77,7 @@ def ui_create_product(brand_id):
         product_id = db_create_product(
             brand_id,
             product_name,
-            p_category_id,
+            # p_category_id,
             size,
             product_description,
             image_url

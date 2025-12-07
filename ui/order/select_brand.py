@@ -1,5 +1,5 @@
 from db.crud import selective_fetch
-from ui.helper import cancel_check
+from ui.helper import cancel_check, clear_screen  # ← 新增 clear_screen
 from ui.order.helper import go_back_check
 
 def ui_show_brand_list():
@@ -7,6 +7,8 @@ def ui_show_brand_list():
     if not brands:
         print("No active brands available.")
         return []
+    
+    clear_screen()  # ← 顯示品牌列表前清屏
     print("\nAvailable Brands:")
     for brand in brands:
         print(f"{brand[0]}. {brand[1]}")
@@ -31,4 +33,3 @@ def ui_select_brand():
             continue
         
         return int(brand_id)
-    

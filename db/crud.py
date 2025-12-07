@@ -1,5 +1,5 @@
-# db/crud.py
-from db import conn
+import psycopg2
+import db.conn as conn
 from db.allowed import table_check, column_check, data_check, conditions_check
 
 def join_conditions(sql: str, table, conditions=None):
@@ -12,6 +12,7 @@ def join_conditions(sql: str, table, conditions=None):
             params.append(value)
         sql += " WHERE " + " AND ".join(clauses)
     return sql, params
+
 
 def insert(table, data):
     table_check(table)
@@ -33,6 +34,7 @@ def insert(table, data):
     if result is None:
         raise RuntimeError("Insert operation failed, no row returned")
     return result
+
 
 def update(table, data, conditions):
     table_check(table)
@@ -65,6 +67,7 @@ def update(table, data, conditions):
         raise RuntimeError("Update operation failed, no row returned")
     return row
 
+
 def fetch(table, conditions=None, order_by=None):
     table_check(table)
     sql = f"SELECT * FROM {table}"
@@ -75,18 +78,70 @@ def fetch(table, conditions=None, order_by=None):
     conn.cur.execute(sql, params)
     return conn.cur.fetchall()
 
+
+def fetch_in(table, column, values, order_by=None):
+    """查詢符合 IN 條件的記錄
+    
+    Args:
+        table: 表名
+        column: 欄位名（如 'product_id'）
+        values: 值的列表（如 [1, 2, 3, 4]）
+        order_by: 排序欄位（可選）
+    
+    Returns:
+        list: 查詢結果
+    
+    Example:
+        fetch_in("PRODUCT", "product_id", [1, 2, 3])
+        # 生成 SQL: SELECT * FROM PRODUCT WHERE product_id IN (1, 2, 3)
+    """
+    table_check(table)
+    column_check(table, column)
+    
+    if not values:
+        return []
+    
+    # 生成 SQL
+    placeholders = ','.join(['%s'] * len(values))
+    sql = f"SELECT * FROM {table} WHERE {column} IN ({placeholders})"
+    
+    if order_by:
+        sql += f" ORDER BY {order_by}"
+    
+    conn.cur.execute(sql, values)
+    return conn.cur.fetchall()
+
+
 def selective_fetch(table, columns, conditions=None, order_by=None):
+    """選擇性查詢特定欄位
+    
+    Args:
+        table: 表名
+        columns: 欄位列表（如 ['user_id', 'user_name']）
+        conditions: 查詢條件字典（如 {'user_id': 1}）
+        order_by: 排序欄位（可選）
+    
+    Returns:
+        list: 查詢結果
+    """
     table_check(table)
     for col in columns:
         column_check(table, col)
 
     sql = f"SELECT {', '.join(columns)} FROM {table}"
-    sql, params = join_conditions(sql, table, conditions)
+    
+    # ✅ 修正：確保 conditions 是字典
+    if conditions:
+        sql, params = join_conditions(sql, table, conditions)
+    else:
+        params = []
+    
     if order_by:
         sql += f" ORDER BY {order_by}"
 
     conn.cur.execute(sql, params)
     return conn.cur.fetchall()
+
 
 def exists(table, conditions=None) -> bool:
     table_check(table)
@@ -95,6 +150,7 @@ def exists(table, conditions=None) -> bool:
     conn.cur.execute(sql, params)
     return conn.cur.fetchone() is not None
 
+
 def delete(table, conditions):
     table_check(table)
     conditions_check("DELETE", conditions)
@@ -102,6 +158,7 @@ def delete(table, conditions):
     sql, params = join_conditions(sql, table, conditions)
     conn.cur.execute(sql, params)
     return conn.cur.rowcount
+
 
 def lock_rows(table, conditions):
     table_check(table)
