@@ -1,6 +1,7 @@
+# db/ingredient/create.py
 # ============================
 # AUTHOR: KUO
-# CREATED DATE: 2025-12-06
+# EDIT DATE: 2025-12-07
 # ASSISTED BY: Claude
 # ============================
 
@@ -29,7 +30,7 @@ def db_create_ingredient(brand_id, ingredient_name, unit):
         "unit": unit,
         "is_active": True,
     })
-    return row[0]  # ingredient_id
+    return row[0]
 
 
 def db_create_product_ingredient(product_id, ingredient_id, qty):

@@ -135,8 +135,8 @@ def db_create_brand_product_option_mutex(brand_id, product_id, option_id_low, op
     if option_id_low >= option_id_high:
         raise ValueError("option_id_low must be less than option_id_high")
     
-    if mutex_logic not in ['EXCLUDE', 'REQUIRE_TOGETHER']:
-        raise ValueError("mutex_logic must be 'EXCLUDE' or 'REQUIRE_TOGETHER'")
+    if mutex_logic not in ['single', 'exclusive']:
+        raise ValueError("mutex_logic must be 'single' or 'exclusive'")
     
     row = insert("BRAND_PRODUCT_OPTION_MUTEX", {
         "brand_id": brand_id,

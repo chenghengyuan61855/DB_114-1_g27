@@ -1,6 +1,7 @@
+# db/product/fetch.py
 # ============================
 # AUTHOR: KUO
-# CREATED DATE: 2025-12-06
+# EDIT DATE: 2025-12-07
 # ASSISTED BY: Claude
 # ============================
 

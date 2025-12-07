@@ -1,6 +1,7 @@
+# db/product/create.py
 # ============================
 # AUTHOR: KUO
-# CREATED DATE: 2025-12-06
+# EDIT DATE: 2025-12-07
 # ASSISTED BY: Claude
 # ============================
 
@@ -25,7 +26,7 @@ def db_create_product_category(brand_id, p_category_name, p_category_description
         "display_order": display_order,
         "is_active": True,
     })
-    return row[0]  # p_category_id
+    return row[0]
 
 
 def db_create_product(brand_id, product_name, p_category_id=None, size=None, 
@@ -52,7 +53,7 @@ def db_create_product(brand_id, product_name, p_category_id=None, size=None,
         "image_url": image_url,
         "is_active": True,
     })
-    return row[0]  # product_id
+    return row[0]
 
 
 def db_create_store_product(store_id, product_id, price):

@@ -1,3 +1,4 @@
+# db/inventory/manage.py
 # ============================
 # AUTHOR: KUO
 # EDIT DATE: 2025-12-07
@@ -67,7 +68,7 @@ def db_update_inventory(store_id, ingredient_id, new_stock_level):
         new_stock_level: 新庫存數量
     
     Returns:
-        int: 受影響的行數
+        row: 更新後的記錄
     """
     if new_stock_level < 0:
         raise ValueError("Stock level cannot be negative")
@@ -92,12 +93,11 @@ def db_deduct_inventory(store_id, ingredient_id, qty):
     Raises:
         ValueError: 庫存不足
     """
-    # 先查詢現有庫存
     inventory = fetch("INVENTORY", {"store_id": store_id, "ingredient_id": ingredient_id})
     if not inventory:
         raise ValueError(f"Inventory record not found for store {store_id}, ingredient {ingredient_id}")
     
-    current_stock = inventory[0][2]  # stock_level
+    current_stock = inventory[0][2]
     if current_stock < qty:
         raise ValueError(f"Insufficient stock. Available: {current_stock}, Requested: {qty}")
     
