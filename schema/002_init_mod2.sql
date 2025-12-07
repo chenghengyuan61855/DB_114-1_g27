@@ -1,29 +1,8 @@
--- PRODUCT_CATEGORY：商品類別
-CREATE TABLE IF NOT EXISTS PRODUCT_CATEGORY
-(
-    p_category_id        bigserial      NOT NULL,
-    brand_id             bigint         NOT NULL,
-    p_category_name      text           NOT NULL,
-    p_category_description varchar(100),
-    display_order        int,
-    is_active            boolean        NOT NULL DEFAULT true,
-    created_at           timestamp      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at           timestamp      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT PRODUCT_CATEGORY_pkey PRIMARY KEY (p_category_id),
-    CONSTRAINT PRODUCT_CATEGORY_brand_id_fkey FOREIGN KEY (brand_id)
-        REFERENCES BRAND(brand_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT PRODUCT_CATEGORY_display_order_chk
-        CHECK (display_order IS NULL OR display_order >= 0)
-);
-
 -- PRODUCT：商品
 CREATE TABLE IF NOT EXISTS PRODUCT
 (
     product_id           bigserial      NOT NULL,
     brand_id             bigint         NOT NULL,
-    p_category_id        bigint,
     product_name         varchar(20)    NOT NULL,
     size                 varchar(10),
     product_description  varchar(100),
@@ -36,10 +15,6 @@ CREATE TABLE IF NOT EXISTS PRODUCT
         REFERENCES BRAND(brand_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    CONSTRAINT PRODUCT_p_category_id_fkey FOREIGN KEY (p_category_id)
-        REFERENCES PRODUCT_CATEGORY(p_category_id)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL
 );
 
 -- STORE_PRODUCT：門市販售商品與價格
