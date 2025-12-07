@@ -1,5 +1,6 @@
 from db.crud import fetch
 from ui.helper import cancel_check
+from ui.order.helper import go_back_check
 
 def ui_show_brand_list():
     brands = fetch("BRAND", {"is_active": True}, order_by="brand_id")
@@ -21,6 +22,9 @@ def ui_select_brand():
 
         if cancel_check(brand_id, "Order Placement"):
             return None
+        
+        if go_back_check(brand_id):
+            return ":b"
         
         if brand_id not in [str(brand[0]) for brand in available_brands]:
             print("Invalid Brand ID. Please try again.")

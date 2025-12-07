@@ -1,4 +1,5 @@
 from ui.helper import cancel_check
+from ui.order.helper import go_back_check
 
 def ui_select_order_type():
     print("Select order type:")
@@ -10,6 +11,9 @@ def ui_select_order_type():
 
         if cancel_check(order_type, "Order Placement"):
             return None
+        
+        if go_back_check(order_type):
+            return ":b"
         
         if order_type == '1':
             return "Pickup"
