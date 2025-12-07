@@ -1,9 +1,9 @@
-from db.crud import fetch
+from db.crud import selective_fetch
 from ui.helper import cancel_check
 from ui.order.helper import go_back_check
 
 def ui_show_brand_list():
-    brands = fetch("BRAND", {"is_active": True}, order_by="brand_id")
+    brands = selective_fetch("BRAND", ["brand_id", "brand_name"], {"is_active": True}, "brand_id")
     if not brands:
         print("No active brands available.")
         return []

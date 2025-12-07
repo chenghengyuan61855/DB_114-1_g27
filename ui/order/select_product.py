@@ -10,7 +10,7 @@ def ui_show_available_products(store_id):
         print("No products available in the selected store.")
         return []
     
-    product_ids = []
+    cleaned_products = []
 
     print("\nAvailable Products:")
     for i, product in enumerate(products):
@@ -20,26 +20,36 @@ def ui_show_available_products(store_id):
         pro = f"{product_name} ({size})" if size else product_name
         price = product[2]
         description = products_detail[i][4]
-        product_ids.append(product_id)
+        cleaned_products.append((product_id, pro, price))
         print(f"{product_id}. {pro} - ${price}")
         print(f"   Description: {description}")
 
-    return product_ids
+    return cleaned_products
 
-def ui_select_item(store_id):
-    product_ids = ui_show_available_products(store_id)
+def ui_select_product(store_id):
+    cleaned_products = ui_show_available_products(store_id)
 
-    if not product_ids:
+    if not cleaned_products:
         print("No products available in the selected store.")
         return None
-
+    
     while True:
         product_id = input("Enter Product ID to select a product: ").strip()
         if cancel_check(product_id, "Order placement"):
             return None
         if go_back_check(product_id):
             return ":b"
-        if product_id not in [str(pid) for pid in product_ids]:
+        if product_id not in [str(pid) for pid, _, _ in cleaned_products]:
             print("Invalid Product ID. Please try again.")
             continue
-        return int(product_id)
+        qty = input("Enter quantity: ").strip()
+        if cancel_check(qty, "Order placement"):
+            return None
+        if go_back_check(qty):
+            return ":b"
+        if not qty.isdigit() or int(qty) <= 0:
+            print("Invalid quantity. Please enter a positive integer.")
+            continue
+        product_name = cleaned_products[int(product_id)-1][1]
+        unit_price = cleaned_products[int(product_id)-1][2]
+        return int(product_id), product_name, int(unit_price), int(qty)
