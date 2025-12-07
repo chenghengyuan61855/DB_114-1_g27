@@ -2,8 +2,11 @@ from db.crud import exists
 from db.user.login import db_login_user
 from ui.helper import cancel_check
 from ui.user.helper import hash_pwd, phone_check, password_check
+from ui.helper import clear_screen  # ← 導入 clear_screen
+
 
 def ui_login_user():
+    clear_screen()  # ← 在登入介面前清屏
     print("=== User Login ===")
     print("(Type ':q' in any input to cancel login)\n")
     # -------- Phone --------
@@ -39,4 +42,5 @@ def ui_login_user():
             continue
 
         print(f"\n✅ Login successful! User ID: {user_id}")
+        input("\n按 Enter 繼續...")  # ← 新增這行
         return user_id

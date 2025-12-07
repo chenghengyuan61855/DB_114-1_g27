@@ -2,9 +2,12 @@ from db.crud import exists
 from db.user.create import db_create_user
 from ui.helper import cancel_check
 from ui.user.helper import hash_pwd, name_check, phone_check, email_check, password_check
+from ui.helper import clear_screen  # ← 導入 clear_screen
+
 
 
 def ui_create_user():
+    clear_screen()  # ← 在創建用戶介面前清屏
     print("\n=== Create User ===")
     print("(Type ':q' in any input to cancel user creation)\n")
 
@@ -74,3 +77,6 @@ def ui_create_user():
         print(f"❌ Error: {ve}")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
+    
+    # ← 加這一行（無論成功或失敗都暫停）
+    # input("\n按 Enter 繼續...") 不需要加，因為 ui/main.py 已經有了
