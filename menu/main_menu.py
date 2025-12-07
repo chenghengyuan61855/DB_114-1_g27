@@ -4,17 +4,43 @@ from menu.product_menu import product_menu  # ← 新增
 from db.user.fetch import db_fetch_user_role
 from ui.helper import clear_screen
 from ui.order.place_order import ui_place_order  # ← 新增
+from menu.brand_manager_menu import brand_manager_menu # brand_manager
+from db.crud import selective_fetch
 
 
+#def main_menu(user_id):
+   # """主選單（根據用戶角色決定流程）"""
+    #print(f"\nWelcome User {user_id}!")
+    #input("\n按 Enter 繼續...")
+    
+    #roles = db_fetch_user_role(user_id)
+    #is_manager = any(role in ['brand_manager', 'store_manager'] for role in roles)
+    
+    #if is_manager:
+       # mode_selection_menu(user_id)
+   # else:
+        #customer_menu(user_id)
+        
 def main_menu(user_id):
     """主選單（根據用戶角色決定流程）"""
     print(f"\nWelcome User {user_id}!")
     input("\n按 Enter 繼續...")
     
     roles = db_fetch_user_role(user_id)
-    is_manager = any(role in ['brand_manager', 'store_manager'] for role in roles)
     
-    if is_manager:
+    # 區分三種角色
+    is_brand_manager = 'brand_manager' in roles
+    is_store_manager = 'store_manager' in roles
+    
+    # Brand Manager 有專屬介面
+    if is_brand_manager:
+        brand_id = get_user_brand_id(user_id)
+        if brand_id:
+            brand_manager_mode_menu(user_id, brand_id)
+        else:
+            print("❌ 無法取得品牌資訊")
+            input("\n按 Enter 繼續...")
+    elif is_store_manager:
         mode_selection_menu(user_id)
     else:
         customer_menu(user_id)
@@ -126,6 +152,50 @@ def manager_menu(user_id):
         elif command == "q":
             return
         
+        else:
+            print("❌ 無效的指令，請重新輸入")
+            input("\n按 Enter 繼續...")
+            
+def get_user_brand_id(user_id):
+    """取得用戶的品牌 ID"""
+    try:
+        assignments = selective_fetch(
+            "USER_ROLE_ASSIGNMENT",
+            ["brand_id"],
+            {"user_id": user_id, "scope_type": "brand", "is_active": True}
+        )
+        if assignments and assignments[0][0]:
+            return assignments[0][0]
+        return None
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return None
+
+
+def brand_manager_mode_menu(user_id, brand_id):
+    """品牌管理者模式選擇"""
+    while True:
+        clear_screen()
+        print("\n" + "="*60)
+        print("=== 歡迎，品牌管理者 ===".center(60))
+        print("="*60)
+        print(f"User ID: {user_id} | Brand ID: {brand_id}")
+        print("="*60)
+        print("\n1. 顧客模式（點餐、查看訂單）")
+        print("2. 品牌管理模式（客製化、評價、商品管理）⭐")
+        print("q. 登出")
+        print("="*60)
+        
+        command = input("\n請輸入指令: ").strip()
+        
+        if command == "1":
+            customer_menu(user_id)
+        elif command == "2":
+            brand_manager_menu(user_id, brand_id)
+        elif command == "q":
+            print("登出中...")
+            input("\n按 Enter 繼續...")
+            return
         else:
             print("❌ 無效的指令，請重新輸入")
             input("\n按 Enter 繼續...")
