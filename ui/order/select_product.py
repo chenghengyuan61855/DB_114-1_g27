@@ -1,6 +1,7 @@
 from db.crud import fetch, fetch_in
 from ui.helper import cancel_check, clear_screen  # ← 新增導入 clear_screen
 from ui.order.helper import go_back_check
+from db.nosql_logger import log_drink_click
 
 def ui_show_available_products(store_id):
     """顯示門市可購買的商品"""
@@ -39,8 +40,9 @@ def ui_show_available_products(store_id):
     return cleaned_products
 
 
-def ui_select_product(store_id):
+def ui_select_product(store_id, user_id=None, brand_id=None):
     """選擇商品並輸入數量"""
+
     cleaned_products = ui_show_available_products(store_id)
 
     if not cleaned_products:
@@ -49,6 +51,7 @@ def ui_select_product(store_id):
     
     while True:
         product_id = input("Enter Product ID to select a product: ").strip()
+
         if cancel_check(product_id, "Order placement"):
             return None
         if go_back_check(product_id):
@@ -57,7 +60,14 @@ def ui_select_product(store_id):
             print("Invalid Product ID. Please try again.")
             continue
         
+        # 在這裡記錄顧客「點了某個飲料」
+        try:
+            log_drink_click(user_id, brand_id, int(product_id))
+        except Exception as e:
+            print(f"[Warning] Failed to log drink click: {e}")
+
         qty = input("Enter quantity: ").strip()
+
         if cancel_check(qty, "Order placement"):
             return None
         if go_back_check(qty):
