@@ -138,13 +138,41 @@ def db_update_store_info(store_id, **updates):
 
 
 def db_delete_store(store_id):
-    """刪除門市（軟刪除：設定 is_active = False）
+    """刪除門市（軟刪除 + 停用關聯資料）
     
     Args:
         store_id: 門市 ID
     
     Returns:
         tuple: 更新後的記錄
+    
+    Note:
+        此操作會：
+        1. 將門市設為停業狀態（is_active = False）
+        2. 停止接單（is_accepting_orders = False）
+        3. 停用該門市的所有商品（STORE_PRODUCT.is_active = False）
+        4. 停用該門市的所有選項（STORE_OPTION.is_enabled = False）
+        資料不會被刪除，但門市將不再接受訂單
     """
-    row = update("STORE", {"is_active": False}, {"store_id": store_id})
+    from db import conn
+    
+    # 1. 軟刪除門市（設為停業且停止接單）
+    row = update("STORE", {
+        "is_active": False,
+        "is_accepting_orders": False
+    }, {"store_id": store_id})
+    
+    # 2. 停用該門市的所有商品
+    conn.cur.execute(
+        "UPDATE STORE_PRODUCT SET is_active = false WHERE store_id = %s",
+        (store_id,)
+    )
+    
+    # 3. 停用該門市的所有選項
+    conn.cur.execute(
+        "UPDATE STORE_OPTION SET is_enabled = false WHERE store_id = %s",
+        (store_id,)
+    )
+    
+    conn.commit()
     return row
