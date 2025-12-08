@@ -292,10 +292,15 @@ INSERT INTO BRAND_PRODUCT_OPTION_RULE (brand_id, product_id, o_category_id, min_
 -- 8. 門市選項啟用
 -- =============================================
 
+-- ✅ 修正：門市只擁有自己品牌的選項
 INSERT INTO STORE_OPTION (store_id, option_id, is_enabled)
 SELECT s.store_id, o.option_id, true
 FROM STORE s
-CROSS JOIN OPTION o
+INNER JOIN OPTION o ON o.o_category_id IN (
+    SELECT oc.o_category_id
+    FROM OPTION_CATEGORY oc
+    WHERE oc.brand_id = s.brand_id
+)
 WHERE s.is_active = true 
   AND o.is_active = true;
 
