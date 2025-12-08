@@ -1,10 +1,51 @@
-from db.crud import insert, selective_fetch
+import db.conn as conn
+import psycopg2
 
-def insert_order_rating(order_id, rating, comment):
-    """插入訂單評分到 ORDER_RATING 表"""
-    data = {
-        "order_id": order_id,
-        "rating": rating,
-        "comment": comment
-    }
-    insert("ORDER_RATING", data)
+def fetch_order_item_details(order_item_id):
+    """
+    Returns:
+      - Main order item row (product with its UI display name, unit price, qty)
+      - List of tuples: (option_name, price_adjust)
+      - Final totals row: (option_total_price, line_total_price)
+    """
+    # Instead of relying on selective_fetch, do composite logic here:
+    # You can use raw SQL, your ORM, or multi-fetches and data merging as needed.
+
+    # 1. Fetch the main order item and joined product
+    sql_main = """
+        SELECT oi.order_item_id, p.product_name || ' ' || p.size AS display_name,
+               oi.unit_price, oi.qty
+        FROM ORDER_ITEM oi
+        JOIN PRODUCT p ON oi.product_id = p.product_id
+        WHERE oi.order_item_id = %s
+        """
+    
+    conn.cur.execute(sql_main, (order_item_id,))
+    main = conn.cur.fetchone()
+
+    # 2. Fetch options (may be many)
+    sql_options = """
+        SELECT o.option_name, o.price_adjust
+        FROM ORDER_ITEM_OPTION oio
+        JOIN OPTION o ON oio.option_id = o.option_id
+        WHERE oio.order_item_id = %s
+        ORDER BY o.option_id
+    """
+    conn.cur.execute(sql_options, (order_item_id,))
+    options = conn.cur.fetchall()
+    if not options:
+        options = []
+
+    # 3. Fetch totals row
+    sql_totals = """
+        SELECT oi.option_total_adjust, oi.line_total_price
+        FROM ORDER_ITEM oi
+        WHERE oi.order_item_id = %s
+    """
+    conn.cur.execute(sql_totals, (order_item_id,))
+    totals = conn.cur.fetchone()
+
+    if not main or not totals:
+        return None, None, None
+
+    return main, options, totals

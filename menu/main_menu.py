@@ -5,6 +5,7 @@ from db.user.fetch import db_fetch_user_role
 from ui.helper import clear_screen
 from ui.order.place_order import ui_place_order
 from ui.order.manage import ui_view_user_orders, ui_cancel_order
+from ui.order_rating.rate_order import ui_rate_order 
 from menu.brand_manager_menu import brand_manager_menu
 from menu.store_staff_menu import store_staff_menu  # ← 新增
 from db.crud import selective_fetch
@@ -153,8 +154,7 @@ def customer_menu(user_id):
             input("\n按 Enter 繼續...")
         
         elif command == "5":
-            # ❌ 評價查詢尚未實作
-            print("⚠️ 評價查詢功能尚未實作")
+            ui_rate_order(user_id)
             input("\n按 Enter 繼續...")
         
         elif command == "q":
