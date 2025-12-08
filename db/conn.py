@@ -33,8 +33,9 @@ def connect():
             host=DB_HOST,
             port=DB_PORT
         )
-        # ✅ 改進：預設關閉 autocommit，改用明確的 transaction 控制
-        db.autocommit = False
+        # ⚠️ 暫時使用 autocommit，避免 transaction 錯誤
+        # TODO: 未來所有函數加入完整的 try-except-rollback 後再改為 False
+        db.autocommit = True
         cur = db.cursor()
         print("Successfully connected to DBMS.")
     except psycopg2.Error as e:
@@ -57,6 +58,26 @@ def close():
 def rollback():
     if db:
         db.rollback()
+
+def get_cursor():
+    """取得當前 cursor（向後兼容）"""
+    return cur
+
+def ensure_transaction_clean():
+    """確保 transaction 是乾淨的狀態
+    
+    如果當前 transaction 有錯誤，自動 rollback
+    這個函數可以在每次操作前呼叫，確保不會卡在錯誤狀態
+    """
+    if db and not db.autocommit:
+        try:
+            # 嘗試執行一個簡單查詢來測試 transaction 狀態
+            cur.execute("SELECT 1")
+            cur.fetchone()
+        except psycopg2.Error:
+            # 如果有錯誤，rollback
+            db.rollback()
+            print("⚠️  Previous transaction error detected and rolled back")
 
 
 # ============================================

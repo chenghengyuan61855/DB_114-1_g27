@@ -29,14 +29,13 @@ from db.crud import insert
 #     return row[0]
 
 
-def db_create_product(brand_id, product_name, p_category_id=None, size=None, 
+def db_create_product(brand_id, product_name, size=None, 
                      product_description=None, image_url=None):
     """建立商品
     
     Args:
         brand_id: 品牌 ID
         product_name: 商品名稱
-        p_category_id: 分類 ID（可選）
         size: 商品尺寸（如 S/M/L）
         product_description: 商品描述
         image_url: 圖片 URL
@@ -47,7 +46,6 @@ def db_create_product(brand_id, product_name, p_category_id=None, size=None,
     row = insert("PRODUCT", {
         "brand_id": brand_id,
         "product_name": product_name,
-        "p_category_id": p_category_id,
         "size": size,
         "product_description": product_description,
         "image_url": image_url,

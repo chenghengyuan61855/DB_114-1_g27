@@ -55,11 +55,13 @@ def db_fetch_product(product_id=None, brand_id=None):
         {
             "product_id": row[0],
             "brand_id": row[1],
-            "product_name": row[2],      # ← 調整索引（原本是 row[3]）
-            "size": row[3],               # ← 調整索引（原本是 row[4]）
-            "product_description": row[4], # ← 調整索引（原本是 row[5]）
-            "image_url": row[5],          # ← 調整索引（原本是 row[6]）
-            "is_active": row[6],          # ← 調整索引（原本是 row[7]）
+            "product_name": row[2],
+            "size": row[3],
+            "product_description": row[4],
+            "image_url": row[5],
+            "is_active": row[6],
+            "created_at": row[7],
+            "updated_at": row[8],
         }
         for row in rows
     ]
@@ -88,6 +90,8 @@ def db_fetch_store_product(store_id=None, product_id=None):
             "product_id": row[1],
             "price": row[2],
             "is_active": row[3],
+            "created_at": row[4],
+            "updated_at": row[5],
         }
         for row in rows
     ]

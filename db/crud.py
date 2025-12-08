@@ -28,12 +28,17 @@ def insert(table, data):
         values.append(value)
         placeholders.append("%s")
 
-    sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join(placeholders)}) RETURNING *"
-    conn.cur.execute(sql, values)
-    result = conn.cur.fetchone()
-    if result is None:
-        raise RuntimeError("Insert operation failed, no row returned")
-    return result
+    try:
+        sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join(placeholders)}) RETURNING *"
+        conn.cur.execute(sql, values)
+        result = conn.cur.fetchone()
+        if result is None:
+            raise RuntimeError("Insert operation failed, no row returned")
+        return result
+    except psycopg2.Error as e:
+        # 如果發生錯誤，rollback 以清理 transaction 狀態
+        conn.rollback()
+        raise e
 
 
 def update(table, data, conditions):
@@ -55,28 +60,39 @@ def update(table, data, conditions):
         where_clauses.append(f"{col} = %s")
         params.append(val)
 
-    sql = f"""
-        UPDATE {table}
-        SET {', '.join(set_clauses)}
-        WHERE {' AND '.join(where_clauses)}
-        RETURNING *
-    """
-    conn.cur.execute(sql, params)
-    row = conn.cur.fetchone()
-    if row is None:
-        raise RuntimeError("Update operation failed, no row returned")
-    return row
+    try:
+        sql = f"""
+            UPDATE {table}
+            SET {', '.join(set_clauses)}
+            WHERE {' AND '.join(where_clauses)}
+            RETURNING *
+        """
+        conn.cur.execute(sql, params)
+        row = conn.cur.fetchone()
+        if row is None:
+            raise RuntimeError("Update operation failed, no row returned")
+        return row
+    except psycopg2.Error as e:
+        # 如果發生錯誤，rollback 以清理 transaction 狀態
+        conn.rollback()
+        raise e
 
 
 def fetch(table, conditions=None, order_by=None):
     table_check(table)
-    sql = f"SELECT * FROM {table}"
-    sql, params = join_conditions(sql, table, conditions)
-    if order_by:
-        sql += f" ORDER BY {order_by}"
-        
-    conn.cur.execute(sql, params)
-    return conn.cur.fetchall()
+    
+    try:
+        sql = f"SELECT * FROM {table}"
+        sql, params = join_conditions(sql, table, conditions)
+        if order_by:
+            sql += f" ORDER BY {order_by}"
+            
+        conn.cur.execute(sql, params)
+        return conn.cur.fetchall()
+    except psycopg2.Error as e:
+        # 如果發生錯誤，rollback 以清理 transaction 狀態
+        conn.rollback()
+        raise e
 
 
 def fetch_in(table, column, values, order_by=None):
@@ -101,15 +117,19 @@ def fetch_in(table, column, values, order_by=None):
     if not values:
         return []
     
-    # 生成 SQL
-    placeholders = ','.join(['%s'] * len(values))
-    sql = f"SELECT * FROM {table} WHERE {column} IN ({placeholders})"
-    
-    if order_by:
-        sql += f" ORDER BY {order_by}"
-    
-    conn.cur.execute(sql, values)
-    return conn.cur.fetchall()
+    try:
+        # 生成 SQL
+        placeholders = ','.join(['%s'] * len(values))
+        sql = f"SELECT * FROM {table} WHERE {column} IN ({placeholders})"
+        
+        if order_by:
+            sql += f" ORDER BY {order_by}"
+        
+        conn.cur.execute(sql, values)
+        return conn.cur.fetchall()
+    except psycopg2.Error as e:
+        conn.rollback()
+        raise e
 
 
 def selective_fetch(table, columns, conditions=None, order_by=None):
@@ -128,36 +148,48 @@ def selective_fetch(table, columns, conditions=None, order_by=None):
     for col in columns:
         column_check(table, col)
 
-    sql = f"SELECT {', '.join(columns)} FROM {table}"
-    
-    # ✅ 修正：確保 conditions 是字典
-    if conditions:
-        sql, params = join_conditions(sql, table, conditions)
-    else:
-        params = []
-    
-    if order_by:
-        sql += f" ORDER BY {order_by}"
+    try:
+        sql = f"SELECT {', '.join(columns)} FROM {table}"
+        
+        # ✅ 修正：確保 conditions 是字典
+        if conditions:
+            sql, params = join_conditions(sql, table, conditions)
+        else:
+            params = []
+        
+        if order_by:
+            sql += f" ORDER BY {order_by}"
 
-    conn.cur.execute(sql, params)
-    return conn.cur.fetchall()
+        conn.cur.execute(sql, params)
+        return conn.cur.fetchall()
+    except psycopg2.Error as e:
+        conn.rollback()
+        raise e
 
 
 def exists(table, conditions=None) -> bool:
     table_check(table)
-    sql = f"SELECT 1 FROM {table}"
-    sql, params = join_conditions(sql, table, conditions)
-    conn.cur.execute(sql, params)
-    return conn.cur.fetchone() is not None
+    try:
+        sql = f"SELECT 1 FROM {table}"
+        sql, params = join_conditions(sql, table, conditions)
+        conn.cur.execute(sql, params)
+        return conn.cur.fetchone() is not None
+    except psycopg2.Error as e:
+        conn.rollback()
+        raise e
 
 
 def delete(table, conditions):
     table_check(table)
     conditions_check("DELETE", conditions)
-    sql = f"DELETE FROM {table}"
-    sql, params = join_conditions(sql, table, conditions)
-    conn.cur.execute(sql, params)
-    return conn.cur.rowcount
+    try:
+        sql = f"DELETE FROM {table}"
+        sql, params = join_conditions(sql, table, conditions)
+        conn.cur.execute(sql, params)
+        return conn.cur.rowcount
+    except psycopg2.Error as e:
+        conn.rollback()
+        raise e
 
 
 def lock_rows(table, conditions):
