@@ -1,23 +1,34 @@
 from db.crud import selective_fetch
 from db.order_rating.rate import insert_order_rating
-from db.order.fetch import db_fetch_order_status
+from db.order.fetch import db_fetch_order_status, db_verify_order_ownership
 from ui.order_rating.helper import rating_input
 from ui.order_rating.rate_order_item import ui_rate_order_item
 from ui.helper import cancel_check, clear_screen
 
-def ui_rate_order(order_id):
-    """讓使用者為訂單評分並留下評論"""
+def ui_rate_order(order_id, user_id):
+    """讓使用者為訂單評分並留下評論
+    
+    Args:
+        order_id: 訂單 ID
+        user_id: 用戶 ID（用於驗證訂單擁有權）
+    """
     clear_screen()
+    
+    # 驗證訂單擁有權
+    if not db_verify_order_ownership(order_id, user_id):
+        print("❌ 此訂單不存在或不屬於您")
+        return
+    
     order_status = db_fetch_order_status(order_id)
     if order_status != "completed":
-        print("Order not completed yet. Cannot rate the order.")
+        print("❌ 訂單尚未完成，無法評價")
         return
 
     print("\n=== Rate your order ===")
     print("Type ':q' to cancel rating at any time.\n")
 
     rating = rating_input("Order Rating")
-    if cancel_check(rating, "Order Rating"):
+    if rating == ":q":
         return ":q"
      
     comment = input("You may leave a comment (optional, leave blank and press Enter to skip): ").strip()

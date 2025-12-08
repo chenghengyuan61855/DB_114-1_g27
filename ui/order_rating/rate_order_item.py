@@ -11,7 +11,7 @@ def ui_rate_order_item(order_item_id):
         return "continue"
     
     rating = rating_input("Order Item Rating")
-    if cancel_check(rating, "Order Item Rating"):
+    if rating == ":q":
         return ":q"
      
     comment = input("You may leave a comment (optional, leave blank and press Enter to skip): ").strip()

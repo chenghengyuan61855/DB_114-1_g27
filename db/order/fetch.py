@@ -270,3 +270,25 @@ def db_fetch_order_status(order_id):
         return None
     
     return orders[0][0]
+
+
+def db_verify_order_ownership(order_id, user_id):
+    """驗證訂單是否屬於指定用戶
+    
+    Args:
+        order_id: 訂單 ID
+        user_id: 用戶 ID
+    
+    Returns:
+        bool: True 表示訂單屬於該用戶，False 表示不屬於或訂單不存在
+    """
+    orders = selective_fetch(
+        "ORDERS",
+        ["user_id"],
+        {"order_id": order_id}
+    )
+    
+    if not orders:
+        return False
+    
+    return orders[0][0] == user_id

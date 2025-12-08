@@ -154,7 +154,19 @@ def customer_menu(user_id):
             input("\n按 Enter 繼續...")
         
         elif command == "5":
-            ui_rate_order(user_id)
+            # 讓用戶選擇要評價的訂單
+            ui_view_user_orders(user_id)
+            order_id_input = input("\n請輸入要評價的訂單 ID (輸入 'q' 返回): ").strip()
+            
+            if order_id_input.lower() == 'q':
+                continue
+            
+            try:
+                order_id = int(order_id_input)
+                ui_rate_order(order_id, user_id)  # 傳入 user_id 進行權限驗證
+            except ValueError:
+                print("❌ 無效的訂單 ID")
+            
             input("\n按 Enter 繼續...")
         
         elif command == "q":

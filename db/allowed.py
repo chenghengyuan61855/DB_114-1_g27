@@ -114,12 +114,10 @@ ALLOWED_COLUMNS = {
                           "price_adjust","created_at","updated_at"
     },
 
-    "ORDER_RATING": {"rating_id","order_id","rating",
-                     "comment","created_at","updated_at"
-    },
+    "ORDER_RATING": {"order_id","order_rating","order_comment","created_at"},
 
-    "ORDER_ITEM_RATING": {"item_rating_id","order_item_id",
-                          "rating","comment","created_at","updated_at",
+    "ORDER_ITEM_RATING": {"order_item_id","order_item_rating",
+                          "order_item_comment","created_at"
     },
 }
 

@@ -426,19 +426,19 @@ def ui_view_user_orders(user_id):
         price_str = f"${order['total_price']}"
         
         print(f"{pad_string(order_id_str, 12)}{pad_string(store_id_str, 12)}{pad_string(status, 16)}{pad_string(order_type, 16)}{pad_string(time_str, 24)}{pad_string(price_str, 12)}")
-
-
-        print("\nEnter order_id to rate an order or leave blank and press Enter to go back:")
-        order_id_input = input("Order ID: ").strip()
-        if order_id_input == "" or order_id_input == ":b" or order_id_input == ":q":
-            return
-        try:
-            order_id = int(order_id_input)
-            ui_rate_order(order_id)
-        except ValueError:
-            print("❌ 無效的訂單 ID")
-        except Exception as e:
-            print(f"❌ Error: {e}")
+    
+    # 移到迴圈外面，顯示完所有訂單後才詢問
+    print("\nEnter order_id to rate an order or leave blank and press Enter to go back:")
+    order_id_input = input("Order ID: ").strip()
+    if order_id_input == "" or order_id_input == ":b" or order_id_input == ":q":
+        return
+    try:
+        order_id = int(order_id_input)
+        ui_rate_order(order_id, user_id)  # 加上 user_id 參數
+    except ValueError:
+        print("❌ 無效的訂單 ID")
+    except Exception as e:
+        print(f"❌ Error: {e}")
 
 
 def ui_cancel_order(user_id):

@@ -60,11 +60,13 @@ def ui_select_product(store_id, user_id=None, brand_id=None):
             print("Invalid Product ID. Please try again.")
             continue
         
-        # 在這裡記錄顧客「點了某個飲料」
-        try:
-            log_drink_click(user_id, brand_id, int(product_id))
-        except Exception as e:
-            print(f"[Warning] Failed to log drink click: {e}")
+        # 在這裡記錄顧客「點了某個飲料」（靜默失敗）
+        if user_id and brand_id:
+            try:
+                log_drink_click(user_id, brand_id, int(product_id))
+            except Exception:
+                # MongoDB 未啟動時靜默失敗，不顯示錯誤訊息
+                pass
 
         qty = input("Enter quantity: ").strip()
 
@@ -74,7 +76,8 @@ def ui_select_product(store_id, user_id=None, brand_id=None):
             return ":b"
         if not qty.isdigit() or int(qty) <= 0:
             print("Invalid quantity. Please enter a positive integer.")
-            continue
+            # 數量無效時，重新從商品選擇開始
+            break
         
         for pid, pname, pprice in cleaned_products:
             if pid == int(product_id):
@@ -83,3 +86,6 @@ def ui_select_product(store_id, user_id=None, brand_id=None):
                 break
         
         return int(product_id), product_name, int(unit_price), int(qty)
+    
+    # 如果 break 出來，遞迴重新開始選擇流程
+    return ui_select_product(store_id, user_id, brand_id)
