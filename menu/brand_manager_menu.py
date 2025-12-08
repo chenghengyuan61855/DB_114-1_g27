@@ -1,7 +1,12 @@
-# menu/brand_manager_menu.py
+# menu/brand_manager_menu.py 的修正版本
+# ============================
+# 整合品牌與門市管理功能
+# ============================
+
 from ui.helper import clear_screen
 from menu.option_menu import option_menu
 from menu.product_menu import product_menu
+from menu.brand_store_menu import brand_info_menu, store_management_menu  # ← 新增
 from db.crud import selective_fetch
 from ui.rating.brand_manager_rating import (
     ui_view_all_ratings,
@@ -56,18 +61,22 @@ def brand_manager_menu(user_id, brand_id):
         print(f"Manager: {user_name} | Brand: {brand_name}")
         print("="*60)
         
+        print("\n【品牌與門市管理】")  # ← 新增區塊
+        print("1. 品牌資訊管理 🏢")
+        print("2. 門市管理 🏪")
+        
         print("\n【商品與選項管理】")
-        print("1. 商品管理")
-        print("2. 選項分類管理（甜度、冰塊、加料等）")
-        print("3. 選項管理（全糖、去冰、珍珠等）")
-        print("4. 商品客製化規則設定 ⭐")
-        print("5. 選項互斥邏輯設定 ⭐")
+        print("3. 商品管理")
+        print("4. 選項分類管理（甜度、冰塊、加料等）")
+        print("5. 選項管理（全糖、去冰、珍珠等）")
+        print("6. 商品客製化規則設定 ⭐")
+        print("7. 選項互斥邏輯設定 ⭐")
         
         print("\n【評價系統】")
-        print("6. 查看所有評價")
-        print("7. 查看特定商品評價")
-        print("8. 查看低分商品（< 3 星）")
-        print("9. 評價統計分析")
+        print("8. 查看所有評價")
+        print("9. 查看特定商品評價")
+        print("10. 查看低分商品（< 3 星）")
+        print("11. 評價統計分析")
         
         print("\n【其他】")
         print("q. 登出 (Logout)")
@@ -75,26 +84,35 @@ def brand_manager_menu(user_id, brand_id):
         
         command = input("\n請輸入指令: ").strip()
         
+        # ✅ 新增：品牌與門市管理
         if command == "1":
-            product_menu(brand_id, store_id=None)
+            brand_info_menu(user_id, brand_id)
         
         elif command == "2":
-            option_category_submenu(brand_id)
+            store_management_menu(user_id, brand_id)
         
+        # 商品與選項管理（編號往後移）
         elif command == "3":
-            option_submenu(brand_id)
+            product_menu(brand_id, store_id=None)
         
         elif command == "4":
-            product_option_rule_submenu(brand_id)
+            option_category_submenu(brand_id)
         
         elif command == "5":
-            product_option_mutex_submenu(brand_id)
+            option_submenu(brand_id)
         
         elif command == "6":
+            product_option_rule_submenu(brand_id)
+        
+        elif command == "7":
+            product_option_mutex_submenu(brand_id)
+        
+        # 評價系統（編號往後移）
+        elif command == "8":
             ui_view_all_ratings(brand_id)
             input("\n按 Enter 繼續...")
         
-        elif command == "7":
+        elif command == "9":
             product_id = input("請輸入商品 ID: ").strip()
             try:
                 ui_view_product_ratings(int(product_id))
@@ -103,11 +121,11 @@ def brand_manager_menu(user_id, brand_id):
                 print("❌ 無效的商品 ID")
                 input("\n按 Enter 繼續...")
         
-        elif command == "8":
+        elif command == "10":
             ui_view_low_rated_products(brand_id)
             input("\n按 Enter 繼續...")
         
-        elif command == "9":
+        elif command == "11":
             ui_view_rating_statistics(brand_id)
             input("\n按 Enter 繼續...")
         
@@ -118,6 +136,8 @@ def brand_manager_menu(user_id, brand_id):
             print("❌ 無效的指令，請重新輸入")
             input("\n按 Enter 繼續...")
 
+
+# ===== 以下是原有的子選單函式（不變）=====
 
 def option_category_submenu(brand_id):
     """選項分類子選單"""
