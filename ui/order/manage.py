@@ -193,7 +193,7 @@ def ui_view_accepted_orders(store_id):
         elif action == 'v':
             order_id = input("請輸入要查看的訂單 ID: ").strip()
             try:
-                ui_view_order_details(int(order_id))
+                ui_view_order_details(int(order_id), store_id)
                 input("\n按 Enter 返回列表...")
                 # 重新顯示列表
                 ui_view_accepted_orders(store_id)
@@ -245,13 +245,18 @@ def ui_view_history_orders(store_id):
     
     if order_id:
         try:
-            ui_view_order_details(int(order_id))
+            ui_view_order_details(int(order_id), store_id)
         except ValueError:
             print("❌ 無效的訂單 ID")
 
 
-def ui_view_order_details(order_id):
-    """查看訂單詳細內容"""
+def ui_view_order_details(order_id, store_id=None):
+    """查看訂單詳細內容
+    
+    Args:
+        order_id: 訂單 ID
+        store_id: 門市 ID（如果提供，會驗證訂單是否屬於該門市）
+    """
     clear_screen()
     print(f"\n=== 訂單詳情 (Order ID: {order_id}) ===\n")
     
@@ -262,6 +267,12 @@ def ui_view_order_details(order_id):
         return
     
     order_info = details['order_info']
+    
+    # ✅ 驗證訂單是否屬於該門市
+    if store_id and order_info['store_id'] != store_id:
+        print("❌ 此訂單不屬於您的門市")
+        return
+    
     items = details['items']
     
     # 顯示訂單基本資訊
@@ -318,7 +329,7 @@ def ui_accept_order(store_id):
         order_id_int = int(order_id)
         
         # ✅ 新增：顯示訂單詳情
-        ui_view_order_details(order_id_int)
+        ui_view_order_details(order_id_int, store_id)
         
         # 確認接單
         confirm = input("確認接受此訂單？(y/n): ").strip().lower()
@@ -352,7 +363,7 @@ def ui_reject_order(store_id):
         order_id_int = int(order_id)
         
         # ✅ 新增：顯示訂單詳情
-        ui_view_order_details(order_id_int)
+        ui_view_order_details(order_id_int, store_id)
         
         # 輸入拒絕原因
         reason = input("\n請輸入拒絕原因: ").strip()

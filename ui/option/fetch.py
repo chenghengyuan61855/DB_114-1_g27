@@ -87,14 +87,38 @@ def ui_view_product_option_mutex(product_id):
     try:
         mutex_rules = db_fetch_brand_product_option_mutex(product_id=product_id)
         if not mutex_rules:
-            print(f"No mutex rules found for product {product_id}.")
+            print(f"✅ 商品 {product_id} 沒有設定互斥規則")
             return
         
-        print(f"\n=== Product {product_id} - Mutex Rules ===")
+        print(f"\n=== 商品 {product_id} - 互斥規則 ===\n")
+        
+        # 查詢所有相關的選項名稱
+        from db.crud import fetch_in
+        option_ids = set()
         for rule in mutex_rules:
-            print(f"Mutex ID: {rule['mutex_id']}")
-            print(f"  Options: {rule['option_id_low']} vs {rule['option_id_high']}")
-            print(f"  Logic: {rule['mutex_logic']}")
+            option_ids.add(rule['option_id_low'])
+            if rule['option_id_high']:
+                option_ids.add(rule['option_id_high'])
+        
+        options_detail = fetch_in("OPTION", "option_id", list(option_ids), "option_id")
+        option_map = {o[0]: o[2] for o in options_detail}  # {option_id: option_name}
+        
+        for idx, rule in enumerate(mutex_rules, 1):
+            option_low_name = option_map.get(rule['option_id_low'], f"ID {rule['option_id_low']}")
+            
+            print(f"{idx}. 互斥規則 ID: {rule['mutex_id']}")
+            
+            if rule['mutex_logic'] == 'exclusive' and rule['option_id_high']:
+                option_high_name = option_map.get(rule['option_id_high'], f"ID {rule['option_id_high']}")
+                print(f"   規則：「{option_low_name}」和「{option_high_name}」不能同時選擇")
+                print(f"   選項 ID: {rule['option_id_low']} ⚔️ {rule['option_id_high']}")
+            elif rule['mutex_logic'] == 'single':
+                print(f"   規則：「{option_low_name}」只能單選")
+                print(f"   選項 ID: {rule['option_id_low']}")
+            else:
+                print(f"   規則類型：{rule['mutex_logic']}")
+            print()
+            
     except Exception as e:
         print(f"❌ Error: {e}")
 

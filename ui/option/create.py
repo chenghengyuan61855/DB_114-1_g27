@@ -233,28 +233,26 @@ def ui_create_option_mutex(brand_id, product_id):
         return
     
     print("\nMutex Logic:")
-    print("1. EXCLUDE - These options cannot be selected together")
-    print("2. REQUIRE_TOGETHER - These options must be selected together")
+    print("1. exclusive - These options cannot be selected together")
+    print("   (例如：冰 vs 熱、無糖 vs 全糖)")
     
     while True:
-        mutex_logic_choice = input("Choose logic (1 or 2): ").strip()
+        mutex_logic_choice = input("Choose logic (1 for exclusive): ").strip()
         if cancel_check(mutex_logic_choice, "Mutex Creation"):
             return
         
         if mutex_logic_choice == "1":
-            mutex_logic = "EXCLUDE"
-            break
-        elif mutex_logic_choice == "2":
-            mutex_logic = "REQUIRE_TOGETHER"
+            mutex_logic = "exclusive"
             break
         else:
-            print("❌ Please enter 1 or 2")
+            print("❌ Please enter 1")
     
     try:
         row = db_create_brand_product_option_mutex(
             brand_id, product_id, option_id_low, option_id_high, mutex_logic
         )
         print(f"✅ Mutex rule created successfully")
+        print(f"   選項 {option_id_low} 和 {option_id_high} 不能同時選擇")
         return row
     except Exception as e:
         print(f"❌ Error: {e}")

@@ -2,7 +2,7 @@ from ui.order.select_product import ui_select_product
 from ui.order.select_options import ui_select_options
 
 
-def ui_select_items(brand_id, store_id):
+def ui_select_items(brand_id, store_id, user_id=None):
     print("\n--- Select Items ---")
     print("Selected options are currently uneditable. If you want to change options, please reselect the product.")
     print("You may delete the previous item after all selections are made.")
@@ -11,14 +11,18 @@ def ui_select_items(brand_id, store_id):
 
     selected_items = []
     while True:
-        item_data = ui_select_product(store_id)
+        item_data = ui_select_product(store_id, user_id, brand_id)
         if item_data is None: return None     # Cancel
         if item_data == ":b":
                 return ":b"
         product_id, product_name, unit_price, qty = item_data
         
         option_data = ui_select_options(brand_id, store_id, product_id)
-        if option_data is None: return None      # Cancel
+        if option_data is None or option_data == (None, None): 
+            return None      # Cancel
+        if option_data == (":b", ":b"):
+            # 用戶在選項選擇時按了 :b，返回到商品選擇
+            continue
         
         # option_data = (all_options, total_option_price)
         # all_options = {category_name: [option_ids]}

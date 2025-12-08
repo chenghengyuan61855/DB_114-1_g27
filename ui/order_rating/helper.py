@@ -22,18 +22,30 @@ def show_order_item_details(order_item_id):
     Returns:
         bool: 是否成功顯示訂單項目詳細資訊
     """
-    main, options, total = fetch_order_item_details(order_item_id)
-    if not main:
-        print("Unexpected error: Order item not found.")
+    main, options, totals = fetch_order_item_details(order_item_id)
+    
+    if not main or not totals:
+        print("❌ 找不到訂單項目")
         return False
 
-    print("\nOrder Item Details:")
-    print(f"Item: {main[1]}")
-    print(f"Unit Price: ${main[2]}")
-    print(f"Quantity: {main[3]}")
+    # main = (order_item_id, display_name, unit_price, qty)
+    # totals = (option_total_adjust, line_total_price)
+    
+    print("\n訂單項目詳情：")
+    print(f"品項：{main[1]}")  # display_name
+    print(f"單價：${main[2]}")  # unit_price
+    print(f"數量：{main[3]}")    # qty
+    
     if options:
-        print("Options:")
+        print("客製化選項：")
         for option in options:
-            print(f" - {option[1]}: ${option[2]}")
-    print(f"Total Price: ${total}\n")
+            option_name = option[0]
+            price_adjust = option[1]
+            price_str = f"+${price_adjust}" if price_adjust > 0 else "免費"
+            print(f"  • {option_name} ({price_str})")
+        print(f"選項加價：${totals[0]}")  # option_total_adjust
+    else:
+        print("客製化選項：無")
+    
+    print(f"小計：${totals[1]}\n")  # line_total_price
     return True

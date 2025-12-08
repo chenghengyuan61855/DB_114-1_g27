@@ -1,5 +1,6 @@
 from db.crud import selective_fetch
 from db.order_rating.rate import insert_order_rating
+from db.order_rating.fetch import check_order_rating_exists
 from db.order.fetch import db_fetch_order_status, db_verify_order_ownership
 from ui.order_rating.helper import rating_input
 from ui.order_rating.rate_order_item import ui_rate_order_item
@@ -22,6 +23,23 @@ def ui_rate_order(order_id, user_id):
     order_status = db_fetch_order_status(order_id)
     if order_status != "completed":
         print("❌ 訂單尚未完成，無法評價")
+        return
+    
+    # ✅ 檢查是否已經評分過
+    if check_order_rating_exists(order_id):
+        print("✅ 您已經評價過此訂單")
+        print("\n是否要評價訂單中的個別商品？(y/n)")
+        choice = input().strip().lower()
+        if choice == 'y':
+            order_items = selective_fetch("ORDER_ITEM", ['order_item_id'], {"order_id": order_id})
+            order_item_rated = False
+            for item in order_items:
+                decision = ui_rate_order_item(item[0])
+                if decision == ":q":
+                    break
+                order_item_rated = True
+            if order_item_rated:
+                print("感謝您的評價！")
         return
 
     print("\n=== Rate your order ===")

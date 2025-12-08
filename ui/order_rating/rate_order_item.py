@@ -1,4 +1,5 @@
 from db.order_rating.rate import insert_order_item_rating
+from db.order_rating.fetch import check_order_item_rating_exists
 from ui.helper import cancel_check
 from ui.order_rating.helper import rating_input, show_order_item_details
 
@@ -8,6 +9,11 @@ def ui_rate_order_item(order_item_id):
     print("Type ':q' to cancel rating at any time.\n")
 
     if not show_order_item_details(order_item_id):
+        return "continue"
+    
+    # ✅ 檢查是否已經評分過
+    if check_order_item_rating_exists(order_item_id):
+        print("✅ 您已經評價過此商品")
         return "continue"
     
     rating = rating_input("Order Item Rating")

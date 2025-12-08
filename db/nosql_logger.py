@@ -15,9 +15,12 @@ def log_drink_click(user_id, brand_id, product_id):
             "submitted": False,
             "order_id": None
         }
-        drink_clicks.insert_one(data)
-    except Exception:
+        result = drink_clicks.insert_one(data)
+        # 偵錯：確認插入成功（調試完成後已關閉）
+        # print(f"[DEBUG] Logged click: user={user_id}, brand={brand_id}, product={product_id}, id={result.inserted_id}")
+    except Exception as e:
         # 靜默失敗，不影響主流程
+        # print(f"[DEBUG] Failed to log click: {e}")
         pass
 
 

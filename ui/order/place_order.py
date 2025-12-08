@@ -40,7 +40,7 @@ def ui_place_order(user_id):
             step += 1
 
         if step == 3:
-            order_item = ui_select_items(brand_id, store_id)
+            order_item = ui_select_items(brand_id, store_id, user_id)
             if order_item is None: return
             if order_item == ":b":
                 step -= 1

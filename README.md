@@ -6,6 +6,38 @@
 
 daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，支援「多品牌、多門市」的集團式架構、商品客製化、即時庫存連動、從下單到評分的完整訂單流程，讓經營回到該有的順手與清醒。
 
+## 🚀 快速開始
+
+### 安裝步驟
+
+詳細安裝說明請參考 **[INSTALLATION.md](INSTALLATION.md)**
+
+**快速安裝命令：**
+
+```bash
+# 1. 建立資料庫並匯入 Schema
+psql -U postgres -c "CREATE DATABASE databaseproject;"
+psql -U postgres -d databaseproject -f schema/001_init_mod1.sql
+psql -U postgres -d databaseproject -f schema/002_init_mod2.sql
+psql -U postgres -d databaseproject -f schema/003_init_mod3.sql
+psql -U postgres -d databaseproject -f schema/004_init_mod4.sql
+
+# 2. 載入測試資料（包含自動序列修復）
+psql -U postgres -d databaseproject -f reset_database.sql
+psql -U postgres -d databaseproject -f test_data_new.sql
+
+# 3. 初始化門市營業時間
+python init_store_hours.py
+
+# 4. 啟動應用程式
+python main.py
+```
+
+**重要提示：** 
+- ✅ `test_data_new.sql` 已包含自動序列修復功能，載入後可直接使用
+- ✅ 包含 5,000 位使用者、50,000 筆訂單的完整測試資料
+- ✅ 如遇到問題，請參考 [INSTALLATION.md](INSTALLATION.md) 的故障排除章節
+
 (以下尚未編輯)
 ## 使用者功能
 
