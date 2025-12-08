@@ -1,6 +1,6 @@
 # ============================
 # AUTHOR: KUO
-# EDIT DATE: 2025-12-07
+# EDIT DATE: 2025-12-08
 # ASSISTED BY: Claude
 # ============================
 
@@ -11,6 +11,24 @@ from db.option.fetch import (
     db_fetch_brand_product_option_mutex,
     db_fetch_store_option
 )
+from db.crud import fetch_in  # ← 新增
+
+# 中文對齊輔助函數
+def get_display_width(text):
+    """計算字串顯示寬度（中文字算2個字元，英文算1個）"""
+    width = 0
+    for char in str(text):
+        if '\u4e00' <= char <= '\u9fff' or '\u3000' <= char <= '\u303f':
+            width += 2
+        else:
+            width += 1
+    return width
+
+def pad_string(text, target_width):
+    """將字串填充到指定顯示寬度"""
+    current_width = get_display_width(text)
+    padding = target_width - current_width
+    return text + ' ' * max(0, padding)
 
 def ui_view_option_categories(brand_id=None):
     """UI：查看選項分類列表"""
@@ -57,9 +75,9 @@ def ui_view_product_option_rules(product_id):
         
         print(f"\n=== Product {product_id} - Option Rules ===")
         for rule in rules:
-            print(f"Category: {rule['o_category_id']} | Min: {rule['min_select']}, Max: {rule['max_select']}")
+            print(f"Category {rule['o_category_id']}: select {rule['min_select']}-{rule['max_select']}")
             if rule['default_option_id']:
-                print(f"  Default Option: {rule['default_option_id']}")
+                print(f"  Default: {rule['default_option_id']}")
     except Exception as e:
         print(f"❌ Error: {e}")
 
@@ -74,23 +92,44 @@ def ui_view_product_option_mutex(product_id):
         
         print(f"\n=== Product {product_id} - Mutex Rules ===")
         for rule in mutex_rules:
-            print(f"Option {rule['option_id_low']} <--> Option {rule['option_id_high']}")
+            print(f"Mutex ID: {rule['mutex_id']}")
+            print(f"  Options: {rule['option_id_low']} vs {rule['option_id_high']}")
             print(f"  Logic: {rule['mutex_logic']}")
     except Exception as e:
         print(f"❌ Error: {e}")
 
 
 def ui_view_store_options(store_id):
-    """UI：查看門市選項設定"""
+    """UI：查看門市選項設定（含選項名稱）"""
     try:
+        # 1. 取得門市選項列表
         store_options = db_fetch_store_option(store_id=store_id)
         if not store_options:
             print(f"No options configured for store {store_id}.")
             return
         
+        # 2. 取得所有選項 ID
+        option_ids = [so['option_id'] for so in store_options]
+        
+        # 3. 批次查詢選項資訊
+        options_detail = fetch_in("OPTION", "option_id", option_ids, "option_id")
+        
+        # 4. 建立 option_id -> option_name 的對應
+        option_map = {o[0]: o[2] for o in options_detail}  # {option_id: option_name}
+        
+        # 5. 顯示門市選項列表（使用中文對齊）
         print(f"\n=== Store {store_id} - Options ===")
+        print(f"{pad_string('選項ID', 12)}{pad_string('選項名稱', 24)}{pad_string('狀態', 12)}")
+        print("="*48)
+        
         for so in store_options:
-            status = "✅ Enabled" if so['is_enabled'] else "❌ Disabled"
-            print(f"Option {so['option_id']}: {status}")
+            option_id = so['option_id']
+            option_name = option_map.get(option_id, "Unknown")
+            status = "✅ 啟用" if so['is_enabled'] else "❌ 停用"
+            
+            option_id_str = str(option_id)
+            
+            print(f"{pad_string(option_id_str, 12)}{pad_string(option_name, 24)}{pad_string(status, 12)}")
+    
     except Exception as e:
         print(f"❌ Error: {e}")

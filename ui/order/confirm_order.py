@@ -1,9 +1,15 @@
 # ============================
 # AUTHOR: KUO
 # CREATED DATE: 2025-12-07
+# ASSISTED BY: Claude
 # ============================
 
-from db.order.place import db_place_order_pickup, db_place_order_delivery
+from db.order.place import (
+    db_place_order_pickup, 
+    db_place_order_delivery,
+    db_insert_order_item,
+    db_insert_order_item_option
+)
 from ui.helper import cancel_check, clear_screen
 
 def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
@@ -97,11 +103,36 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
                 receiver_phone
             )
         
+        # ✅ 修正：從 tuple 中提取 order_id（第一個元素）
+        actual_order_id = order_id[0] if isinstance(order_id, tuple) else order_id
+        
         print(f"\n✅ Order placed successfully!")
-        print(f"Order ID: {order_id}")
+        print(f"Order ID: {actual_order_id}")
         print(f"Total: ${total_price}")
         
-        # TODO: 插入 ORDER_ITEM 和 ORDER_ITEM_OPTION（需要實作）
+        # ✅ 插入訂單明細和選項
+        for item in selected_items:
+            # 插入 ORDER_ITEM
+            order_item_result = db_insert_order_item(
+                order_id=actual_order_id,
+                product_id=item['product_id'],
+                quantity=item['quantity'],
+                unit_price=item['unit_price'],
+                option_total_adjust=item.get('option_price', 0)  # ✅ 新增：選項總調整價格
+            )
+            
+            # ✅ 修正：從 tuple 中提取 order_item_id（第一個元素）
+            actual_order_item_id = order_item_result[0] if isinstance(order_item_result, tuple) else order_item_result
+            
+            # 插入 ORDER_ITEM_OPTION（如果有選項）
+            if 'selected_options' in item and item['selected_options']:
+                for option_id in item['selected_options']:
+                    db_insert_order_item_option(
+                        order_item_id=actual_order_item_id,
+                        option_id=option_id
+                    )
+        
+        print("✅ Order items and options saved successfully!")
         
     except Exception as e:
         print(f"❌ Error placing order: {e}")

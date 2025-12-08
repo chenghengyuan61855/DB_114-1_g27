@@ -152,3 +152,101 @@ def db_fetch_delivery_threshold(store_id):
         return 0
     
     return stores[0][0] or 0
+
+
+def db_fetch_order_details(order_id):
+    """查詢訂單詳細資訊（包括訂單明細和選項）
+    
+    Args:
+        order_id: 訂單 ID
+    
+    Returns:
+        dict: 包含訂單資訊、訂單明細、每個明細的選項
+    """
+    from db import conn
+    
+    # 1. 查詢訂單主檔
+    order_rows = fetch("ORDERS", {"order_id": order_id})
+    if not order_rows:
+        return None
+    
+    order = order_rows[0]
+    # ORDERS 欄位：order_id, user_id, store_id, order_status, order_type,
+    #              delivery_address, receiver_name, receiver_phone, placed_at,
+    #              accepted_at, completed_at, rejected_reason, total_price,
+    #              payment_status, payment_method
+    
+    order_info = {
+        "order_id": order[0],
+        "user_id": order[1],
+        "store_id": order[2],
+        "order_status": order[3],
+        "order_type": order[4],
+        "delivery_address": order[5],
+        "receiver_name": order[6],
+        "receiver_phone": order[7],
+        "placed_at": order[8],
+        "total_price": order[12],
+        "payment_method": order[14],
+    }
+    
+    # 2. 查詢訂單明細
+    sql_items = """
+        SELECT 
+            oi.order_item_id,
+            oi.product_id,
+            p.product_name,
+            oi.unit_price,
+            oi.qty,
+            oi.option_total_adjust,
+            oi.line_total_price
+        FROM ORDER_ITEM oi
+        JOIN PRODUCT p ON oi.product_id = p.product_id
+        WHERE oi.order_id = %s
+        ORDER BY oi.order_item_id
+    """
+    conn.cur.execute(sql_items, (order_id,))
+    item_rows = conn.cur.fetchall()
+    
+    items = []
+    for item_row in item_rows:
+        order_item_id = item_row[0]
+        
+        # 3. 查詢該明細的選項
+        sql_options = """
+            SELECT 
+                o.option_id,
+                o.option_name,
+                o.price_adjust
+            FROM ORDER_ITEM_OPTION oio
+            JOIN OPTION o ON oio.option_id = o.option_id
+            WHERE oio.order_item_id = %s
+            ORDER BY o.option_id
+        """
+        conn.cur.execute(sql_options, (order_item_id,))
+        option_rows = conn.cur.fetchall()
+        
+        options = [
+            {
+                "option_id": opt[0],
+                "option_name": opt[1],
+                "price_adjust": opt[2],
+            }
+            for opt in option_rows
+        ]
+        
+        items.append({
+            "order_item_id": item_row[0],
+            "product_id": item_row[1],
+            "product_name": item_row[2],
+            "unit_price": item_row[3],
+            "qty": item_row[4],
+            "option_total_adjust": item_row[5],
+            "line_total_price": item_row[6],
+            "options": options,
+        })
+    
+    return {
+        "order_info": order_info,
+        "items": items,
+    }

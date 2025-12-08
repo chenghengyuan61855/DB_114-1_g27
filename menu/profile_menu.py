@@ -1,4 +1,5 @@
 from ui.user.profile import ui_view_user_profile, ui_update_user_profile
+from ui.user.address import ui_manage_addresses
 from ui.helper import clear_screen
 
 def profile_menu(user_id):
@@ -8,6 +9,7 @@ def profile_menu(user_id):
         print("=====================")
         print("1. View Profile")
         print("2. Update Profile")
+        print("3. 地址管理")
         print("q. Back to Main Menu")
         
         command = input("Enter command: ").strip()
@@ -18,6 +20,10 @@ def profile_menu(user_id):
             
         elif command == "2":
             ui_update_user_profile(user_id)
+            input("\n按 Enter 繼續...")
+        
+        elif command == "3":
+            ui_manage_addresses(user_id)
             input("\n按 Enter 繼續...")
             
         elif command == "q":

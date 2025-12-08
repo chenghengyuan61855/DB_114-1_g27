@@ -1,6 +1,6 @@
 from db.user.profile import db_fetch_user_profile, db_update_user_profile
 from ui.helper import cancel_check
-from ui.user.helper import name_check, email_check, password_check, hash_pwd
+from ui.user.helper import name_check, email_check, password_check, hash_pwd, verify_pwd
 from ui.helper import clear_screen  # ← 導入 clear_screen
 
 def ui_view_user_profile(user_id):
@@ -22,14 +22,14 @@ def ui_update_user_profile(user_id):
     clear_screen()  # ← 在更新用戶資料前清屏
     print("=== Update User Profile ===")
     print("(Leave blank and press enter to keep current value)")
-    print("(Type ':q' in any input to cancel profile update)")
+    print("(Type ':q' in any input to cancel profile update)\n")
    
     profile = db_fetch_user_profile(user_id)
     if not profile:
-        print("Profile not found.")
+        print("Profile not found.\n")
         return
     
-    print(f"Current Name: {profile['user_name']}")
+    print(f"\nCurrent Name: {profile['user_name']}")
     while True:
         new_name = input("New Name: ").strip()
         if cancel_check(new_name, "Profile Update"):
@@ -42,13 +42,13 @@ def ui_update_user_profile(user_id):
         if not name_check(new_name):
             continue
 
-        name_confirm = input(f"Confirm New Name '{new_name}'? (y/n): ").strip().lower()
+        name_confirm = input(f"\nConfirm New Name '{new_name}'? (y/n): ").strip().lower()
         if name_confirm == 'y':
             break
         elif name_confirm == 'n':
             print("Let's try again.")
 
-    print(f"Current Email: {profile['user_email']}")
+    print(f"\nCurrent Email: {profile['user_email']}")
     while True:
         new_email = input("New Email: ").strip()
         if cancel_check(new_email, "Profile Update"):
@@ -61,7 +61,7 @@ def ui_update_user_profile(user_id):
         if not email_check(new_email):
             continue
 
-        email_confirm = input(f"Confirm New Email '{new_email}'? (y/n): ").strip().lower()
+        email_confirm = input(f"\nConfirm New Email '{new_email}'? (y/n): ").strip().lower()
         if email_confirm == 'y':
             break
         elif email_confirm == 'n':
@@ -69,12 +69,16 @@ def ui_update_user_profile(user_id):
 
         
     while True:
-        pwd_confirm = input("Enter your password to confirm changes: ")
+        pwd_confirm = input("\nEnter your password to confirm changes: ")
+        if cancel_check(pwd_confirm, "Profile Update"):
+            return
+        
         if not password_check(pwd_confirm):
             continue
 
-        if hash_pwd(pwd_confirm) != profile.get('password_hash'):
-            print("❌ Incorrect password. Please try again.\n")
+        # ✅ 修正：使用 verify_pwd 而不是 hash_pwd
+        if not verify_pwd(pwd_confirm, profile.get('password_hash')):
+            print("❌ Incorrect password. Please try again.")
             continue
 
         break

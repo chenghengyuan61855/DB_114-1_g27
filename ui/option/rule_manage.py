@@ -22,6 +22,8 @@ from ui.option.helper import (
     validate_price_adjust,
     validate_select_range
 )
+from ui.option.fetch import ui_view_store_options  # ← 新增
+
 
 
 def ui_update_option_category(o_category_id):
@@ -131,15 +133,47 @@ def ui_update_option_rule(brand_id, product_id, o_category_id):
         print(f"❌ Error: {e}")
 
 
-def ui_update_store_option_status(store_id, option_id):
-    """UI：更新門市選項狀態"""
-    print("\n=== Update Store Option Status ===\n")
+
+def ui_update_store_option_status(store_id, option_id=None):
+    """UI：更新門市選項狀態
     
-    print("Current status options:")
-    print("1. Enable")
-    print("2. Disable")
+    Args:
+        store_id: 門市 ID（必填）
+        option_id: 選項 ID（可選，如果不提供則先顯示可選列表）
+    """
+    # ✅ 修正：先顯示該門市的所有選項
+    if option_id is None:
+        print("\n=== Update Store Option Status ===\n")
+        print(f"門市 {store_id} 的選項設定：\n")
+        ui_view_store_options(store_id)
+        
+        option_id_str = input("\n請輸入要修改的選項 ID (輸入 'q' 取消): ").strip()
+        
+        if option_id_str.lower() == 'q':
+            print("❌ 操作已取消")
+            return
+        
+        try:
+            option_id = int(option_id_str)
+        except ValueError:
+            print("❌ 無效的選項 ID")
+            return
     
-    choice = input("Choose (1 or 2): ").strip()
+    # ✅ 防護：確認該選項屬於此門市
+    from db.option.fetch import db_fetch_store_option
+    store_option = db_fetch_store_option(store_id=store_id, option_id=option_id)
+    
+    if not store_option:
+        print(f"❌ 錯誤：門市 {store_id} 沒有選項 {option_id}")
+        return
+    
+    current_status = "啟用" if store_option[0]['is_enabled'] else "停用"
+    print(f"\n目前狀態：{current_status}")
+    print("\n請選擇新狀態：")
+    print("1. 啟用 (Enable)")
+    print("2. 停用 (Disable)")
+    
+    choice = input("選擇 (1 or 2): ").strip()
     
     if choice == "1":
         is_enabled = True
@@ -153,7 +187,7 @@ def ui_update_store_option_status(store_id, option_id):
     
     try:
         db_update_store_option(store_id, option_id, is_enabled)
-        print(f"✅ Option {status} for store {store_id}")
+        print(f"✅ 選項 {option_id} 已成功設為 {status}")
     except Exception as e:
         print(f"❌ Error: {e}")
 
