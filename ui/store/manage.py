@@ -282,13 +282,24 @@ def ui_delete_store(store_id):
         print(f"門市名稱：{store['store_name']}")
         print(f"門市地址：{store['store_address'] or '（未設定）'}")
         
-        # 確認刪除
-        print("\n⚠️ 注意：刪除門市後將無法恢復（軟刪除，資料仍保留）")
-        confirm = input(f"\n確認刪除門市「{store['store_name']}」？(y/n): ").strip().lower()
+        # 確認刪除（改善提示訊息）
+        print("\n" + "="*60)
+        print("⚠️  此操作會將門市設為「停業」狀態")
+        print("="*60)
+        print("影響範圍：")
+        print("  • 門市將停止接受新訂單")
+        print("  • 門市的所有商品將被停用")
+        print("  • 門市的所有選項將被停用")
+        print("  • 歷史訂單資料不會被刪除")
+        print()
+        print("如需恢復營業，請使用「更新門市資訊」功能")
+        print("="*60)
+        
+        confirm = input(f"\n確認停業門市「{store['store_name']}」？(y/n): ").strip().lower()
         
         if confirm == 'y':
             db_delete_store(store_id)
-            print("\n✅ 門市刪除成功")
+            print("\n✅ 門市已設為停業狀態")
         else:
             print("❌ 操作已取消")
     
