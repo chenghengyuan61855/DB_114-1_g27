@@ -1,4 +1,4 @@
-from db.crud import insert, selective_fetch
+from db.crud import insert
 
 def insert_order_rating(order_id, rating, comment):
     """插入訂單評分到 ORDER_RATING 表"""

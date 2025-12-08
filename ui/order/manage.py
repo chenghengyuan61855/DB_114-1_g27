@@ -4,6 +4,8 @@
 # ASSISTED BY: Claude
 # ============================
 
+# update by YUAN: nagivate to order_rating 
+
 from db.order.manage import (
     db_fetch_pending_orders,
     db_fetch_accepted_orders,
@@ -16,6 +18,7 @@ from db.order.manage import (
 )
 from db.order.fetch import db_fetch_order_details
 from ui.helper import clear_screen
+from ui.order_rating.rate_order import ui_rate_order
 
 # 中文對齊輔助函數
 def get_display_width(text):
@@ -423,6 +426,19 @@ def ui_view_user_orders(user_id):
         price_str = f"${order['total_price']}"
         
         print(f"{pad_string(order_id_str, 12)}{pad_string(store_id_str, 12)}{pad_string(status, 16)}{pad_string(order_type, 16)}{pad_string(time_str, 24)}{pad_string(price_str, 12)}")
+
+
+        print("\nEnter order_id to rate an order or leave blank and press Enter to go back:")
+        order_id_input = input("Order ID: ").strip()
+        if order_id_input == "" or order_id_input == ":b" or order_id_input == ":q":
+            return
+        try:
+            order_id = int(order_id_input)
+            ui_rate_order(order_id)
+        except ValueError:
+            print("❌ 無效的訂單 ID")
+        except Exception as e:
+            print(f"❌ Error: {e}")
 
 
 def ui_cancel_order(user_id):
