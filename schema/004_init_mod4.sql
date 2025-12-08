@@ -1,4 +1,4 @@
--- ORDER：訂單主檔
+-- ORDERS：訂單主檔
 CREATE TABLE IF NOT EXISTS ORDERS
 (
     order_id        bigserial     NOT NULL,
