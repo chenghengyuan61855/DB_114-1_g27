@@ -22,6 +22,7 @@ def brand_info_menu(user_id, brand_id):
         print("\n=== 品牌資訊管理 ===\n")
         print("1. 查看品牌資訊")
         print("2. 更新品牌資訊")
+        print("3. 新增品牌")  # ← 新增這一行
         print("q. 返回上一層")
         print("="*30)
         
@@ -33,6 +34,10 @@ def brand_info_menu(user_id, brand_id):
         
         elif command == "2":
             ui_update_brand_info(brand_id)
+            input("\n按 Enter 繼續...")
+        
+        elif command == "3":  # ← 新增這個區塊
+            ui_create_brand()
             input("\n按 Enter 繼續...")
         
         elif command == "q":
