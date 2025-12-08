@@ -138,7 +138,6 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
                     )
             
             # ✅ 【新增】標記 NoSQL 記錄為「已送出訂單」
-            # ✅ 【新增】標記 NoSQL 記錄為「已送出訂單」
             try:
                 from db.nosql_logger import mark_drink_as_submitted
                 from db.store.manage import db_fetch_store_info
@@ -147,7 +146,7 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
                 brand_id = store_info['brand_id'] if store_info else None
         
                 if brand_id:
-                     mark_drink_as_submitted(
+                    mark_drink_as_submitted(
                         user_id=user_id,
                         brand_id=brand_id,
                         product_id=item['product_id'],
@@ -155,3 +154,7 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
                     )
             except Exception as e:
                 print(f"[Warning] Failed to update analytics: {e}")
+    
+    except Exception as e:
+        print(f"❌ Error placing order: {e}")
+        return
