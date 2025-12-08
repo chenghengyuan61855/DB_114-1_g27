@@ -9,6 +9,26 @@ from db.product.fetch import db_fetch_product
 from ui.helper import clear_screen
 
 
+# 中文對齊輔助函數
+def get_display_width(text):
+    """計算字串顯示寬度（中文字算2個字元，英文算1個）"""
+    width = 0
+    for char in str(text):
+        # 判斷是否為中文字符（包括中文標點符號）
+        if '\u4e00' <= char <= '\u9fff' or '\u3000' <= char <= '\u303f':
+            width += 2
+        else:
+            width += 1
+    return width
+
+
+def pad_string(text, target_width):
+    """將字串填充到指定顯示寬度"""
+    current_width = get_display_width(text)
+    padding = target_width - current_width
+    return text + ' ' * max(0, padding)
+
+
 def ui_view_click_analytics(brand_id):
     """品牌飲料點擊分析主選單"""
     
@@ -79,8 +99,8 @@ def ui_view_product_click_stats(brand_id):
         product_map = {p["product_id"]: p["product_name"] for p in products}
         
         print(f"\n共 {len(stats)} 個商品有點擊記錄\n")
-        print(f"{'商品ID':<10} {'商品名稱':<30} {'總點擊':<10} {'完成訂單':<12} {'反悔率':<10}")
-        print("="*80)
+        print(f"{pad_string('商品ID', 12)}{pad_string('商品名稱', 32)}{pad_string('總點擊', 12)}{pad_string('完成訂單', 14)}{pad_string('反悔率', 12)}")
+        print("="*82)
         
         for s in stats:
             product_id = s["product_id"]
@@ -89,8 +109,8 @@ def ui_view_product_click_stats(brand_id):
             submitted = s["submitted_count"]
             abandon_rate = s["abandon_rate"]
             
-            print(f"{product_id:<10} {product_name:<30} {total_clicks:<10} "
-                  f"{submitted:<12} {abandon_rate:<10.2f}%")
+            print(f"{pad_string(str(product_id), 12)}{pad_string(product_name, 32)}{pad_string(str(total_clicks), 12)}"
+                  f"{pad_string(str(submitted), 14)}{pad_string(f'{abandon_rate:.2f}%', 12)}")
     
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -107,25 +127,26 @@ def ui_view_top_products(brand_id):
         if not top_products:
             print("⚠️ 目前沒有點擊資料")
             return
-        
+
         # 批次查詢商品名稱
         products = db_fetch_product(brand_id=brand_id)
         product_map = {p["product_id"]: p["product_name"] for p in products}
-        
-        print(f"{'排名':<6} {'商品名稱':<30} {'點擊次數':<12} {'完成訂單':<12} {'轉換率':<10}")
-        print("="*80)
-        
+
+        # 表頭（使用顯示寬度對齊商品名稱欄位）
+        print(f"{pad_string('排名', 10)}{pad_string('商品名稱', 32)}{pad_string('點擊次數', 14)}{pad_string('完成訂單', 14)}{pad_string('轉換率', 12)}")
+        print("=" * 82)
+
         for idx, s in enumerate(top_products, 1):
             product_id = s["product_id"]
             product_name = product_map.get(product_id, "Unknown")
             total_clicks = s["total_clicks"]
             submitted = s["submitted_count"]
             conversion = (submitted / total_clicks * 100) if total_clicks > 0 else 0
-            
-            print(f"{idx:<6} {product_name:<30} {total_clicks:<12} "
-                  f"{submitted:<12} {conversion:<10.1f}%")
+
+            print(f"{pad_string(str(idx), 10)}{pad_string(product_name, 32)}{pad_string(str(total_clicks), 14)}"
+                  f"{pad_string(str(submitted), 14)}{pad_string(f'{conversion:.1f}%', 12)}")
         
-        print("\n💡 提示：點擊次數高代表商品有吸引力，轉換率低可能需要優化定價或描述")
+        print("\n提示：點擊次數高代表商品有吸引力，轉換率低可能需要改善定價或描述")
     
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -151,7 +172,7 @@ def ui_view_high_abandon_products(brand_id):
         product_map = {p["product_id"]: p["product_name"] for p in products}
         
         print(f"⚠️ 發現 {len(high_abandon)} 個高反悔率商品（> {threshold}%）\n")
-        print(f"{'商品名稱':<30} {'總點擊':<10} {'完成訂單':<12} {'反悔率':<10}")
+        print(f"{pad_string('商品名稱', 32)}{pad_string('總點擊', 12)}{pad_string('完成訂單', 14)}{pad_string('反悔率', 12)}")
         print("="*70)
         
         for s in high_abandon:
@@ -161,10 +182,10 @@ def ui_view_high_abandon_products(brand_id):
             submitted = s["submitted_count"]
             abandon_rate = s["abandon_rate"]
             
-            print(f"{product_name:<30} {total_clicks:<10} "
-                  f"{submitted:<12} {abandon_rate:<10.1f}%")
+            print(f"{pad_string(product_name, 32)}{pad_string(str(total_clicks), 12)}"
+                  f"{pad_string(str(submitted), 14)}{pad_string(f'{abandon_rate:.1f}%', 12)}")
         
-        print("\n💡 提示：高反悔率可能代表價格過高、描述不清楚或選項設定有問題")
+        print("\n提示：高反悔率可能代表價格過高、描述不清楚或選項設定有問題")
     
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -200,9 +221,9 @@ def ui_view_conversion_rate(brand_id):
         
         print("="*60)
         
-        print("\n💡 提示：")
+        print("\n提示：")
         print("  • 轉換率低可能原因：商品價格過高、選項設定複雜、結帳流程不順暢")
-        print("  • 建議：查看「高反悔率商品」找出問題商品")
+        print("  • 可以查看「高反悔率商品」找出問題商品")
     
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -238,11 +259,11 @@ def ui_view_hourly_distribution(brand_id):
         top_hours = sorted(hourly_dist.items(), key=lambda x: x[1], reverse=True)[:3]
         
         print("\n" + "="*60)
-        print("🔥 熱門時段 TOP 3：")
+        print("熱門時段 TOP 3：")
         for idx, (hour, count) in enumerate(top_hours, 1):
             print(f"  {idx}. {hour:02d}:00-{hour:02d}:59 - {count} 次點擊")
         
-        print("\n💡 提示：可在熱門時段推出限時優惠或增加人力準備")
+        # print("\n提示：可在熱門時段推出限時優惠或增加人力準備")
     
     except Exception as e:
         print(f"❌ Error: {e}")
