@@ -361,7 +361,75 @@ INSERT INTO USER_ADDRESS (user_id, district, label, address) VALUES
 (2, '永和區', '公司',  '新北市永和區中正路100號'),
 
 -- carol_liu 的地址
-(3, '中正區', '家', '台北市中正區汀州路三段200號')
+(3, '中正區', '家', '台北市中正區汀州路三段200號');
+
+
+-- =============================================
+-- 13. 新增營業時間
+-- =============================================
+
+-- 檢查目前哪些門市沒有營業時間
+SELECT s.store_id, s.store_name, COUNT(sh.store_id) as hours_count
+FROM STORE s
+LEFT JOIN STORE_HOURS sh ON s.store_id = sh.store_id
+GROUP BY s.store_id, s.store_name
+HAVING COUNT(sh.store_id) = 0;
+
+-- 為所有沒有營業時間的門市初始化
+-- weekday: 0=週一, 1=週二, 2=週三, 3=週四, 4=週五, 5=週六, 6=週日
+INSERT INTO STORE_HOURS (store_id, weekday, is_open, open_time, close_time)
+SELECT 
+    s.store_id,
+    w.weekday,
+    true as is_open,
+    '10:00:00'::time as open_time,
+    '22:00:00'::time as close_time
+FROM STORE s
+CROSS JOIN (
+    SELECT 0 as weekday UNION ALL
+    SELECT 1 UNION ALL
+    SELECT 2 UNION ALL
+    SELECT 3 UNION ALL
+    SELECT 4 UNION ALL
+    SELECT 5 UNION ALL
+    SELECT 6
+) w
+WHERE NOT EXISTS (
+    -- 只新增那些還沒有任何營業時間記錄的門市
+    SELECT 1 FROM STORE_HOURS sh 
+    WHERE sh.store_id = s.store_id
+);
+
+-- 驗證：檢查所有門市的營業時間記錄數（應該都是 7 天）
+SELECT 
+    s.store_id, 
+    s.store_name, 
+    COUNT(sh.store_id) as hours_count
+FROM STORE s
+LEFT JOIN STORE_HOURS sh ON s.store_id = sh.store_id
+GROUP BY s.store_id, s.store_name
+ORDER BY s.store_id;
+
+-- 查看初始化結果
+SELECT 
+    s.store_id,
+    s.store_name,
+    sh.weekday,
+    CASE sh.weekday
+        WHEN 0 THEN '週一'
+        WHEN 1 THEN '週二'
+        WHEN 2 THEN '週三'
+        WHEN 3 THEN '週四'
+        WHEN 4 THEN '週五'
+        WHEN 5 THEN '週六'
+        WHEN 6 THEN '週日'
+    END as weekday_name,
+    sh.is_open,
+    sh.open_time,
+    sh.close_time
+FROM STORE s
+JOIN STORE_HOURS sh ON s.store_id = sh.store_id
+ORDER BY s.store_id, sh.weekday;
 
 
 -- =============================================
