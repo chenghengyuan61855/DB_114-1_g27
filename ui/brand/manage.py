@@ -120,3 +120,76 @@ def ui_update_brand_info(brand_id):
         print(f"❌ {e}")
     except Exception as e:
         print(f"❌ Error: {e}")
+
+
+def ui_create_brand():
+    """新增品牌"""
+    clear_screen()
+    print("\n=== 新增品牌 ===\n")
+    print("(輸入 ':q' 取消操作)\n")
+    
+    try:
+        # 品牌名稱
+        while True:
+            brand_name = input("品牌名稱（必填）: ").strip()
+            if cancel_check(brand_name, "新增品牌"):
+                return
+            
+            if not brand_name:
+                print("❌ 品牌名稱不能為空")
+                continue
+            
+            if len(brand_name) > 20:
+                print("❌ 品牌名稱不能超過 20 個字元")
+                continue
+            
+            break
+        
+        # 品牌地址
+        brand_address = input("品牌地址（可選）: ").strip()
+        if cancel_check(brand_address, "新增品牌"):
+            return
+        if not brand_address:
+            brand_address = None
+        
+        # 品牌電話
+        brand_phone = input("品牌電話（可選）: ").strip()
+        if cancel_check(brand_phone, "新增品牌"):
+            return
+        if not brand_phone:
+            brand_phone = None
+        
+        # 品牌 Email
+        brand_email = input("品牌 Email（可選）: ").strip()
+        if cancel_check(brand_email, "新增品牌"):
+            return
+        if brand_email:
+            if len(brand_email) > 50:
+                print("❌ Email 不能超過 50 個字元")
+                return
+            if "@" not in brand_email:
+                print("❌ Email 格式不正確")
+                return
+        else:
+            brand_email = None
+        
+        # 確認新增
+        print("\n確認新增品牌：")
+        print(f"品牌名稱：{brand_name}")
+        print(f"品牌地址：{brand_address or '（未設定）'}")
+        print(f"品牌電話：{brand_phone or '（未設定）'}")
+        print(f"品牌 Email：{brand_email or '（未設定）'}")
+        
+        confirm = input("\n確認新增？(y/n): ").strip().lower()
+        
+        if confirm == 'y':
+            from db.brand.manage import db_create_brand
+            brand_id = db_create_brand(brand_name, brand_address, brand_phone, brand_email)
+            print(f"\n✅ 品牌新增成功（品牌 ID: {brand_id}）")
+        else:
+            print("❌ 操作已取消")
+    
+    except ValueError as e:
+        print(f"❌ {e}")
+    except Exception as e:
+        print(f"❌ Error: {e}")
