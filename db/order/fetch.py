@@ -250,3 +250,23 @@ def db_fetch_order_details(order_id):
         "order_info": order_info,
         "items": items,
     }
+
+def db_fetch_order_status(order_id):
+    """查詢訂單狀態
+    
+    Args:
+        order_id: 訂單 ID
+    
+    Returns:
+        str: 訂單狀態（如 'Pending', 'Accepted', 'Completed', 'Rejected'）
+    """
+    orders = selective_fetch(
+        "ORDERS",
+        ["order_status"],
+        {"order_id": order_id}
+    )
+    
+    if not orders:
+        return None
+    
+    return orders[0][0]
