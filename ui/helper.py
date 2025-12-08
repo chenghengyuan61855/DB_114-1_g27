@@ -1,3 +1,4 @@
+import os
 def cancel_check(input_str: str, ui_type: str) -> bool:
     if input_str.strip() == ":q":
         print(f"{ui_type} cancelled.")
@@ -57,18 +58,29 @@ def validate_price(price) -> bool:
         print("❌ Price must be a valid integer.")
         return False
 
-
-
-
-
-
-# 讓前端更好看
-import os
-
 def clear_screen():
-    """根據作業系統清空終端機畫面。"""
-    # 判斷作業系統
-    if os.name == 'posix':  # Linux and macOS
-        os.system('clear')
-    else:  # Windows
-        os.system('cls')
+    """清除螢幕"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+# 確保指令 q 可用
+def cancel_check(user_input, operation_name="Operation"):
+    """
+    檢查使用者是否輸入 'q' 以取消操作
+    
+    Args:
+        user_input: 使用者輸入的字串
+        operation_name: 操作名稱（用於顯示訊息）
+    
+    Returns:
+        True: 使用者輸入 'q'，需要返回
+        False: 使用者輸入其他內容，繼續操作
+    """
+    if user_input.strip().lower() == 'q':
+        print(f"❌ {operation_name} cancelled. Returning to previous menu...")
+        input("Press Enter to continue...")
+        return True
+    return False
+
+def pause():
+    """暫停並等待使用者按下 Enter"""
+    input("\nPress Enter to continue...")

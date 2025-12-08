@@ -1,12 +1,12 @@
-# menu/brand_manager_menu.py 的修正版本
 # ============================
-# 整合品牌與門市管理功能
+# 更新版 brand_manager_menu.py
+# 新增：NoSQL 飲料點擊分析功能
 # ============================
 
 from ui.helper import clear_screen
 from menu.option_menu import option_menu
 from menu.product_menu import product_menu
-from menu.brand_store_menu import brand_info_menu, store_management_menu  # ← 新增
+from menu.brand_store_menu import brand_info_menu, store_management_menu
 from db.crud import selective_fetch
 from ui.rating.brand_manager_rating import (
     ui_view_all_ratings,
@@ -14,6 +14,7 @@ from ui.rating.brand_manager_rating import (
     ui_view_low_rated_products,
     ui_view_rating_statistics
 )
+from ui.analytics.click_analytics import ui_view_click_analytics  # ← 新增
 
 
 def get_user_name(user_id):
@@ -49,7 +50,7 @@ def get_brand_name(brand_id):
 
 
 def brand_manager_menu(user_id, brand_id):
-    """品牌管理者主選單"""
+    """品牌管理者主選單（含分析功能）"""
     user_name = get_user_name(user_id)
     brand_name = get_brand_name(brand_id)
     
@@ -61,7 +62,7 @@ def brand_manager_menu(user_id, brand_id):
         print(f"Manager: {user_name} | Brand: {brand_name}")
         print("="*60)
         
-        print("\n【品牌與門市管理】")  # ← 新增區塊
+        print("\n【品牌與門市管理】")
         print("1. 品牌資訊管理 🏢")
         print("2. 門市管理 🏪")
         
@@ -78,20 +79,23 @@ def brand_manager_menu(user_id, brand_id):
         print("10. 查看低分商品（< 3 星）")
         print("11. 評價統計分析")
         
+        print("\n【🔥 飲料點擊分析（NoSQL）】")  # ← 新增
+        print("12. 飲料點擊分析（熱門商品、反悔率、轉換率）📊")
+        
         print("\n【其他】")
         print("q. 回到主選單（選擇顧客/品牌介面）")
         print("="*60)
         
         command = input("\n請輸入指令: ").strip()
         
-        # ✅ 新增：品牌與門市管理
+        # 品牌與門市管理
         if command == "1":
             brand_info_menu(user_id, brand_id)
         
         elif command == "2":
             store_management_menu(user_id, brand_id)
         
-        # 商品與選項管理（編號往後移）
+        # 商品與選項管理
         elif command == "3":
             product_menu(brand_id, store_id=None)
         
@@ -107,7 +111,7 @@ def brand_manager_menu(user_id, brand_id):
         elif command == "7":
             product_option_mutex_submenu(brand_id)
         
-        # 評價系統（編號往後移）
+        # 評價系統
         elif command == "8":
             ui_view_all_ratings(brand_id)
             input("\n按 Enter 繼續...")
@@ -128,6 +132,10 @@ def brand_manager_menu(user_id, brand_id):
         elif command == "11":
             ui_view_rating_statistics(brand_id)
             input("\n按 Enter 繼續...")
+        
+        # 🔥 新增：飲料點擊分析
+        elif command == "12":
+            ui_view_click_analytics(brand_id)
         
         elif command == "q":
             return

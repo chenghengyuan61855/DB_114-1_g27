@@ -4,16 +4,22 @@
 # ASSISTED BY: Claude
 # ============================
 
+# ============================
+# 更新版 confirm_order.py
+# 新增：訂單送出後標記 NoSQL 記錄
+# ============================
+
 from db.order.place import (
     db_place_order_pickup, 
     db_place_order_delivery,
     db_insert_order_item,
     db_insert_order_item_option
 )
+from db.nosql_logger import mark_drink_as_submitted  # ← 新增
 from ui.helper import cancel_check, clear_screen
 
 def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
-    """確認並送出訂單"""
+    """確認並送出訂單（含 NoSQL 更新）"""
     clear_screen()
     
     print("\n=== Order Summary ===")
@@ -103,7 +109,7 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
                 receiver_phone
             )
         
-        # ✅ 修正：從 tuple 中提取 order_id（第一個元素）
+        # ✅ 從 tuple 中提取 order_id
         actual_order_id = order_id[0] if isinstance(order_id, tuple) else order_id
         
         print(f"\n✅ Order placed successfully!")
@@ -118,21 +124,34 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
                 product_id=item['product_id'],
                 quantity=item['quantity'],
                 unit_price=item['unit_price'],
-                option_total_adjust=item.get('option_price', 0)  # ✅ 新增：選項總調整價格
+                option_total_adjust=item.get('option_price', 0)
             )
             
-            # ✅ 修正：從 tuple 中提取 order_item_id（第一個元素）
             actual_order_item_id = order_item_result[0] if isinstance(order_item_result, tuple) else order_item_result
             
-            # 插入 ORDER_ITEM_OPTION（如果有選項）
+            # 插入 ORDER_ITEM_OPTION
             if 'selected_options' in item and item['selected_options']:
                 for option_id in item['selected_options']:
                     db_insert_order_item_option(
                         order_item_id=actual_order_item_id,
                         option_id=option_id
                     )
+            
+            # ✅ 【新增】標記 NoSQL 記錄為「已送出訂單」
+            # ✅ 【新增】標記 NoSQL 記錄為「已送出訂單」
+            try:
+                from db.nosql_logger import mark_drink_as_submitted
+                from db.store.manage import db_fetch_store_info
         
-        print("✅ Order items and options saved successfully!")
+                store_info = db_fetch_store_info(store_id)
+                brand_id = store_info['brand_id'] if store_info else None
         
-    except Exception as e:
-        print(f"❌ Error placing order: {e}")
+                if brand_id:
+                     mark_drink_as_submitted(
+                        user_id=user_id,
+                        brand_id=brand_id,
+                        product_id=item['product_id'],
+                        order_id=actual_order_id
+                    )
+            except Exception as e:
+                print(f"[Warning] Failed to update analytics: {e}")
