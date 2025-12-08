@@ -39,9 +39,14 @@ INSERT INTO BRAND (brand_name, brand_address, brand_phone, brand_email, is_activ
 INSERT INTO STORE (brand_id, store_name, store_address, store_phone, is_active, is_accepting_orders, is_accepting_deliveries) VALUES 
 (1, '台北公館店', '台北市中正區汀州路三段174號', '02-23680270', true, true, true),          -- 可不可熟成紅茶
 (2, '50嵐_公館店', '10091臺北市中正區汀州路三段116-1號', '02-23684599', true, true, true),        -- 50嵐 (老字號台大店)
+(2, '50嵐_復興店', '10664臺北市大安區復興南路二段182號', '02-27093698', true, true, true),         -- 50嵐 復興店
+(2, '50嵐_永康店', '10650臺北市大安區永康街14巷2號', '02-23952000', true, true, true),             -- 50嵐 永康店
+(2, '50嵐_同安店', '100臺北市中正區同安街32號', '02-23653381', true, true, true),                   -- 50嵐 同安店
+(2, '50嵐_通化店', '10678臺北市大安區通化街119號', '02-27399748', true, true, true),               -- 50嵐 通化店
 (3, '台北公館計劃', '台北市中正區羅斯福路三段316巷10-2號', '02-23683130', true, true, true), -- 得正 (特色店名)
 (4, '台北公館店', '100臺北市中正區羅斯福路三段316巷5號', '02-23672307', true, true, true),      -- 麻古茶坊
 (5, '台北公館店', '10090臺北市中正區羅斯福路三段316巷10之2號1樓', '02-23687707', true, true, true);         -- 迷客夏
+
 
 -- =============================================
 -- 3. 商品
@@ -121,25 +126,46 @@ INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES
 (1, 1, 35, true), (1, 2, 35, true), (1, 3, 40, true), (1, 4, 45, true), (1, 5, 35, true),
 (1, 6, 50, true), (1, 7, 60, true), (1, 8, 50, true), (1, 9, 45, true), (1, 10, 50, true);
 
--- 50嵐
+-- 50嵐_公館店
 INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
 (2, 11, 30, true), (2, 12, 40, true), (2, 13, 50, true), (2, 14, 50, true), (2, 15, 55, true),
 (2, 16, 50, true), (2, 17, 45, true), (2, 18, 60, true), (2, 19, 30, true), (2, 20, 55, true);
 
+-- 50嵐_復興店
+INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
+(3, 11, 30, true), (3, 12, 40, true), (3, 13, 50, true), (3, 14, 50, true), (3, 15, 55, true),
+(3, 16, 50, true), (3, 17, 45, true), (3, 18, 60, true), (3, 19, 30, true), (3, 20, 55, true);
+
+-- 50嵐_永康店
+INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
+(4, 11, 30, true), (4, 12, 40, true), (4, 13, 50, true), (4, 14, 50, true), (4, 15, 55, true),
+(4, 16, 50, true), (4, 17, 45, true), (4, 18, 60, true), (4, 19, 30, true), (4, 20, 55, true);
+
+-- 50嵐_同安店
+INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
+(5, 11, 30, true), (5, 12, 40, true), (5, 13, 50, true), (5, 14, 50, true), (5, 15, 55, true),
+(5, 16, 50, true), (5, 17, 45, true), (5, 18, 60, true), (5, 19, 30, true), (5, 20, 55, true);
+
+-- 50嵐_通化店
+INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
+(6, 11, 30, true), (6, 12, 40, true), (6, 13, 50, true), (6, 14, 50, true), (6, 15, 55, true),
+(6, 16, 50, true), (6, 17, 45, true), (6, 18, 60, true), (6, 19, 30, true), (6, 20, 55, true);
+
 -- 得正
 INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
-(3, 21, 35, true), (3, 22, 35, true), (3, 23, 35, true), (3, 24, 55, true), (3, 25, 60, true),
-(3, 26, 50, true), (3, 27, 60, true), (3, 28, 55, true), (3, 29, 55, true), (3, 30, 55, true);
+(7, 21, 35, true), (7, 22, 35, true), (7, 23, 35, true), (7, 24, 55, true), (7, 25, 60, true),
+(7, 26, 50, true), (7, 27, 60, true), (7, 28, 55, true), (7, 29, 55, true), (7, 30, 55, true);
 
 -- 麻古
 INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
-(4, 31, 35, true), (4, 32, 35, true), (4, 33, 80, true), (4, 34, 90, true), (4, 35, 75, true),
-(4, 36, 70, true), (4, 37, 85, true), (4, 38, 60, true), (4, 39, 75, true), (4, 40, 50, true);
+(8, 31, 35, true), (8, 32, 35, true), (8, 33, 80, true), (8, 34, 90, true), (8, 35, 75, true),
+(8, 36, 70, true), (8, 37, 85, true), (8, 38, 60, true), (8, 39, 75, true), (8, 40, 50, true);
 
 -- 迷客夏
 INSERT INTO STORE_PRODUCT (store_id, product_id, price, is_active) VALUES 
-(5, 41, 55, true), (5, 42, 60, true), (5, 43, 65, true), (5, 44, 70, true), (5, 45, 65, true),
-(5, 46, 35, true), (5, 47, 40, true), (5, 48, 35, true), (5, 49, 60, true), (5, 50, 45, true);
+(9, 41, 55, true), (9, 42, 60, true), (9, 43, 65, true), (9, 44, 70, true), (9, 45, 65, true),
+(9, 46, 35, true), (9, 47, 40, true), (9, 48, 35, true), (9, 49, 60, true), (9, 50, 45, true);
+
 
 -- =============================================
 -- 5. 選項分類
@@ -327,7 +353,7 @@ INSERT INTO USER_ADDRESS (user_id, district, label, address) VALUES
 (1, '大安區', '家', '台北市大安區羅斯福路三段283巷3號'),
 
 -- bob_chen 的地址
-(2, '永和區', '家',  '新北市永和區中正路100號'),
+(2, '永和區', '公司',  '新北市永和區中正路100號'),
 
 -- carol_liu 的地址
 (3, '中正區', '家', '台北市中正區汀州路三段200號')
