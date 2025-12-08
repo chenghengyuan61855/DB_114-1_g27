@@ -57,3 +57,37 @@ def db_update_brand_info(brand_id, **updates):
     
     row = update("BRAND", updates, {"brand_id": brand_id})
     return row
+
+def db_create_brand(brand_name, brand_address=None, brand_phone=None, brand_email=None):
+    """新增品牌
+    
+    Args:
+        brand_name: 品牌名稱（必填）
+        brand_address: 品牌地址（可選）
+        brand_phone: 品牌電話（可選）
+        brand_email: 品牌 Email（可選）
+    
+    Returns:
+        int: 新品牌的 ID
+    
+    Raises:
+        ValueError: 如果品牌名稱無效
+    """
+    from db.crud import insert, exists
+    
+    if not brand_name or len(brand_name) > 20:
+        raise ValueError("Brand name must be 1-20 characters")
+    
+    # 檢查品牌名稱是否已存在
+    if exists("BRAND", {"brand_name": brand_name}):
+        raise ValueError("Brand name already exists")
+    
+    row = insert("BRAND", {
+        "brand_name": brand_name,
+        "brand_address": brand_address,
+        "brand_phone": brand_phone,
+        "brand_email": brand_email,
+        "is_active": True,
+    })
+    
+    return row[0]  # brand_id
