@@ -11,8 +11,23 @@ NUM_ORDERS = 50000  # 生成 50000 筆訂單
 # 門市 ID 範圍（根據你的 reset_database.sql）
 STORE_IDS = list(range(1, 10))  # 1-9
 
-# 商品 ID 範圍（根據你的資料）
-PRODUCT_IDS = list(range(1, 51))  # 1-50
+# 品牌-門市-商品對應表
+BRAND_STORE_PRODUCT_MAP = {
+    1: {'stores': [1], 'products': list(range(1, 11))},           # 可不可: Store 1, Products 1-10
+    2: {'stores': [2, 3, 4, 5, 6], 'products': list(range(11, 21))},  # 50嵐: Stores 2-6, Products 11-20
+    3: {'stores': [7], 'products': list(range(21, 31))},          # 得正: Store 7, Products 21-30
+    4: {'stores': [8], 'products': list(range(31, 41))},          # 麻古: Store 8, Products 31-40
+    5: {'stores': [9], 'products': list(range(41, 51))},          # 迷客夏: Store 9, Products 41-50
+}
+
+# 門市對應的品牌 ID
+STORE_TO_BRAND = {
+    1: 1,  # 可不可
+    2: 2, 3: 2, 4: 2, 5: 2, 6: 2,  # 50嵐
+    7: 3,  # 得正
+    8: 4,  # 麻古
+    9: 5,  # 迷客夏
+}
 
 # 選項分類與選項對應（簡化版）
 OPTION_CATEGORIES = {
@@ -87,14 +102,15 @@ def generate_user_roles(num_users, start_id=10):
 # 生成訂單資料
 # ============================================
 def generate_orders(num_orders, user_start_id=20, user_end_id=5000):
-    """生成訂單資料"""
+    """生成訂單資料，並返回訂單-門市映射表"""
     print("-- =============================================")
     print(f"-- 生成 {num_orders} 筆訂單")
     print("-- =============================================")
     
+    # 訂單狀態分佈：99.8% 已完成，0.1% 待處理，0.1% 進行中
     order_statuses = ['placed', 'accepted', 'completed', 'rejected', 'cancelled']
-    order_status_weights = [0.1, 0.15, 0.65, 0.05, 0.05]  # 大部分是已完成
-    
+    order_status_weights = [0.0001, 0.0001, 0.7, 0.2, 0.0988]  
+
     order_types = ['pickup', 'delivery']
     payment_methods = ['cash', 'card', 'online']  # ✅ 修正：符合 VARCHAR(10) 限制
     payment_statuses = ['paid', 'unpaid']
@@ -106,10 +122,14 @@ def generate_orders(num_orders, user_start_id=20, user_end_id=5000):
     start_date = end_date - timedelta(days=90)
     
     sql_values = []
+    order_store_map = {}  # 記錄每個訂單對應的門市
     
     for i in range(num_orders):
+        order_id = i + 1  # 訂單 ID 從 1 開始
         user_id = random.randint(user_start_id, user_end_id)
         store_id = random.choice(STORE_IDS)
+        order_store_map[order_id] = store_id  # 記錄訂單-門市對應
+        
         order_status = random.choices(order_statuses, weights=order_status_weights)[0]
         order_type = random.choice(order_types)
         payment_method = random.choice(payment_methods)
@@ -167,25 +187,41 @@ def generate_orders(num_orders, user_start_id=20, user_end_id=5000):
                   "completed_at, rejected_reason, total_price, payment_status, payment_method) VALUES")
     
     print()
+    return order_store_map  # 返回訂單-門市映射表
 
 # ============================================
 # 生成訂單項目資料
 # ============================================
-def generate_order_items(num_orders, order_start_id=1):
-    """生成訂單項目資料"""
+def generate_order_items(num_orders, order_start_id=1, order_store_map=None):
+    """生成訂單項目資料 - 確保商品與門市品牌一致"""
     print("-- =============================================")
-    print(f"-- 生成訂單項目（每筆訂單 1-5 個商品）")
+    print(f"-- 生成訂單項目（每筆訂單 1-5 個商品，商品與門市品牌一致）")
     print("-- =============================================")
+    
+    if order_store_map is None:
+        print("錯誤：缺少訂單-門市映射表")
+        return
     
     sql_values = []
     order_item_id = 1
     
     for order_id in range(order_start_id, order_start_id + num_orders):
+        # 獲取該訂單對應的門市
+        store_id = order_store_map.get(order_id)
+        if store_id is None:
+            continue
+            
+        # 根據門市查找品牌
+        brand_id = STORE_TO_BRAND[store_id]
+        
+        # 根據品牌選擇可用的商品
+        available_products = BRAND_STORE_PRODUCT_MAP[brand_id]['products']
+        
         # 每筆訂單隨機 1-5 個商品
         num_items = random.randint(1, 5)
         
         for _ in range(num_items):
-            product_id = random.choice(PRODUCT_IDS)
+            product_id = random.choice(available_products)
             unit_price = random.randint(30, 80)
             qty = random.randint(1, 3)
             option_total_adjust = random.randint(0, 30)
@@ -255,11 +291,11 @@ if __name__ == "__main__":
     # 2. 分配角色
     generate_user_roles(NUM_USERS)
     
-    # 3. 生成訂單
-    generate_orders(NUM_ORDERS)
+    # 3. 生成訂單並獲取訂單-門市映射表
+    order_store_map = generate_orders(NUM_ORDERS)
     
-    # 4. 生成訂單項目（估計約 2.5 個商品/訂單）
-    generate_order_items(NUM_ORDERS)
+    # 4. 生成訂單項目（傳入訂單-門市映射表）
+    generate_order_items(NUM_ORDERS, order_store_map=order_store_map)
     
     # 5. 生成訂單項目選項（估計約 2.5 * 3 = 7.5 個選項/訂單）
     estimated_order_items = NUM_ORDERS * 3
