@@ -2,6 +2,7 @@
 from ui.helper import clear_screen
 from menu.option_menu import option_menu
 from menu.product_menu import product_menu
+from db.crud import selective_fetch
 from ui.rating.brand_manager_rating import (
     ui_view_all_ratings,
     ui_view_product_ratings,
@@ -10,15 +11,49 @@ from ui.rating.brand_manager_rating import (
 )
 
 
+def get_user_name(user_id):
+    """取得使用者名稱"""
+    try:
+        result = selective_fetch(
+            "APP_USER",
+            ["user_name"],
+            {"user_id": user_id}
+        )
+        if result and result[0][0]:
+            return result[0][0]
+        return f"User {user_id}"
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return f"User {user_id}"
+
+
+def get_brand_name(brand_id):
+    """取得品牌名稱"""
+    try:
+        result = selective_fetch(
+            "BRAND",
+            ["brand_name"],
+            {"brand_id": brand_id}
+        )
+        if result and result[0][0]:
+            return result[0][0]
+        return f"Brand {brand_id}"
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return f"Brand {brand_id}"
+
+
 def brand_manager_menu(user_id, brand_id):
     """品牌管理者主選單"""
+    user_name = get_user_name(user_id)
+    brand_name = get_brand_name(brand_id)
     
     while True:
         clear_screen()
         print("\n" + "="*60)
         print("=== 品牌管理者介面 ===".center(60))
         print("="*60)
-        print(f"Brand ID: {brand_id} | User ID: {user_id}")
+        print(f"Manager: {user_name} | Brand: {brand_name}")
         print("="*60)
         
         print("\n【商品與選項管理】")
@@ -35,7 +70,7 @@ def brand_manager_menu(user_id, brand_id):
         print("9. 評價統計分析")
         
         print("\n【其他】")
-        print("q. 返回上一層")
+        print("q. 登出 (Logout)")
         print("="*60)
         
         command = input("\n請輸入指令: ").strip()
