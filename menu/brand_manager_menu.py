@@ -79,7 +79,7 @@ def brand_manager_menu(user_id, brand_id):
         print("11. 評價統計分析")
         
         print("\n【其他】")
-        print("q. 登出 (Logout)")
+        print("q. 回到主選單（選擇顧客/品牌介面）")
         print("="*60)
         
         command = input("\n請輸入指令: ").strip()
