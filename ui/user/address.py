@@ -10,7 +10,7 @@ from db.user.address import (
     db_update_user_address,
     db_delete_user_address
 )
-from ui.helper import clear_screen, cancel_check
+from ui.helper import clear_screen, cancel_check, validate_label
 
 # 中文對齊輔助函數
 def get_display_width(text):
@@ -41,16 +41,15 @@ def ui_view_user_addresses(user_id):
         print("目前沒有儲存的地址")
         return addresses
     
-    print(f"{pad_string('地址ID', 12)}{pad_string('標籤', 12)}{pad_string('行政區', 16)}{pad_string('詳細地址', 50)}")
+    print(f"{pad_string('標籤', 16)}{pad_string('行政區', 16)}{pad_string('詳細地址', 50)}")
     print("="*90)
     
     for addr in addresses:
-        addr_id_str = str(addr['address_id'])
         label_str = addr['label']
         district_str = addr['district']
         address_str = addr['address']
         
-        print(f"{pad_string(addr_id_str, 12)}{pad_string(label_str, 12)}{pad_string(district_str, 16)}{pad_string(address_str, 50)}")
+        print(f"{pad_string(label_str, 16)}{pad_string(district_str, 16)}{pad_string(address_str, 50)}")
     
     return addresses
 
@@ -66,9 +65,8 @@ def ui_create_user_address(user_id):
         label = input("地址標籤（例如：家、公司）: ").strip()
         if cancel_check(label, "新增地址"):
             return
-        if label:
+        if validate_label(label):
             break
-        print("❌ 標籤不能為空")
     
     # 輸入行政區
     while True:
@@ -98,8 +96,11 @@ def ui_create_user_address(user_id):
     
     if confirm == 'y':
         try:
-            address_id = db_create_user_address(user_id, district, label, address)
-            print(f"✅ 地址新增成功（ID: {address_id}）")
+            success = db_create_user_address(user_id, district, label, address)
+            if success:
+                print(f"✅ 地址新增成功")
+            else:
+                print(f"❌ 地址新增失敗")
         except Exception as e:
             print(f"❌ Error: {e}")
     else:
@@ -113,22 +114,16 @@ def ui_update_user_address(user_id):
     if not addresses:
         return
     
-    address_id = input("\n請輸入要修改的地址 ID (輸入 'q' 取消): ").strip()
+    label = input("\n請輸入要修改的地址標籤 (輸入 'q' 取消): ").strip()
     
-    if address_id.lower() == 'q':
+    if label.lower() == 'q':
         print("❌ 操作已取消")
-        return
-    
-    try:
-        address_id = int(address_id)
-    except ValueError:
-        print("❌ 無效的地址 ID")
         return
     
     # 找到對應的地址
     target_addr = None
     for addr in addresses:
-        if addr['address_id'] == address_id:
+        if addr['label'] == label:
             target_addr = addr
             break
     
@@ -146,8 +141,10 @@ def ui_update_user_address(user_id):
     new_label = input(f"新標籤 [{target_addr['label']}]: ").strip()
     if cancel_check(new_label, "修改地址"):
         return
-    if not new_label:
-        new_label = target_addr['label']
+    
+    # 檢查新標籤（如果有輸入的話）
+    if new_label and not validate_label(new_label):
+        return
     
     # 輸入新行政區
     new_district = input(f"新行政區 [{target_addr['district']}]: ").strip()
@@ -163,14 +160,26 @@ def ui_update_user_address(user_id):
     if not new_address:
         new_address = target_addr['address']
     
-    updates = {
-        "label": new_label,
-        "district": new_district,
-        "address": new_address,
-    }
+    updates = {}
+    
+    # 如果要更新標籤
+    if new_label and new_label != target_addr['label']:
+        updates["new_label"] = new_label
+    
+    # 如果要更新行政區
+    if new_district != target_addr['district']:
+        updates["district"] = new_district
+    
+    # 如果要更新地址
+    if new_address != target_addr['address']:
+        updates["address"] = new_address
+    
+    if not updates:
+        print("❌ 沒有任何修改")
+        return
     
     try:
-        db_update_user_address(address_id, user_id, **updates)
+        db_update_user_address(user_id, label, **updates)
         print("✅ 地址更新成功")
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -183,24 +192,18 @@ def ui_delete_user_address(user_id):
     if not addresses:
         return
     
-    address_id = input("\n請輸入要刪除的地址 ID (輸入 'q' 取消): ").strip()
+    label = input("\n請輸入要刪除的地址標籤 (輸入 'q' 取消): ").strip()
     
-    if address_id.lower() == 'q':
+    if label.lower() == 'q':
         print("❌ 操作已取消")
         return
     
-    try:
-        address_id = int(address_id)
-    except ValueError:
-        print("❌ 無效的地址 ID")
-        return
-    
     # 確認刪除
-    confirm = input(f"\n確認刪除地址 {address_id}？(y/n): ").strip().lower()
+    confirm = input(f"\n確認刪除地址「{label}」？(y/n): ").strip().lower()
     
     if confirm == 'y':
         try:
-            db_delete_user_address(address_id, user_id)
+            db_delete_user_address(user_id, label)
             print("✅ 地址刪除成功")
         except ValueError as e:
             print(f"❌ {e}")

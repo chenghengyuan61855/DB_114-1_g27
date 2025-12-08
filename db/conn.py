@@ -1,4 +1,5 @@
 import psycopg2
+import psycopg2.pool
 import os
 from dotenv import load_dotenv
 
@@ -14,10 +15,14 @@ def _get_db_password():
         raise RuntimeError("DB_PASSWORD is not set")
     return pwd
 
+# ============================================
+# 舊版單一連線模式（向後兼容）
+# ============================================
 db = None
 cur = None
 
 def connect():
+    """建立單一資料庫連線（舊版模式，保留向後兼容）"""
     global db, cur
     try:
         DB_PASSWORD = _get_db_password()
@@ -28,7 +33,8 @@ def connect():
             host=DB_HOST,
             port=DB_PORT
         )
-        db.autocommit = True
+        # ✅ 改進：預設關閉 autocommit，改用明確的 transaction 控制
+        db.autocommit = False
         cur = db.cursor()
         print("Successfully connected to DBMS.")
     except psycopg2.Error as e:
@@ -51,3 +57,95 @@ def close():
 def rollback():
     if db:
         db.rollback()
+
+
+# ============================================
+# 新版 Connection Pool 模式（推薦使用）
+# ============================================
+connection_pool = None
+
+def init_connection_pool(minconn=1, maxconn=10):
+    """初始化連線池
+    
+    Args:
+        minconn: 最小連線數
+        maxconn: 最大連線數
+    """
+    global connection_pool
+    try:
+        DB_PASSWORD = _get_db_password()
+        connection_pool = psycopg2.pool.ThreadedConnectionPool(
+            minconn=minconn,
+            maxconn=maxconn,
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
+        )
+        print(f"Connection pool initialized (min={minconn}, max={maxconn})")
+    except psycopg2.Error as e:
+        print("Error initializing connection pool:", e)
+        raise
+    except Exception as e:
+        print("Internal error:", e)
+        raise
+
+def get_connection():
+    """從連線池取得一個連線
+    
+    Returns:
+        connection: 資料庫連線物件
+    """
+    if connection_pool is None:
+        init_connection_pool()
+    return connection_pool.getconn()
+
+def release_connection(conn):
+    """將連線歸還至連線池
+    
+    Args:
+        conn: 要歸還的連線物件
+    """
+    if connection_pool:
+        connection_pool.putconn(conn)
+
+def close_connection_pool():
+    """關閉連線池"""
+    global connection_pool
+    if connection_pool:
+        connection_pool.closeall()
+        connection_pool = None
+        print("Connection pool closed")
+
+
+# ============================================
+# Context Manager（推薦使用）
+# ============================================
+class DatabaseConnection:
+    """資料庫連線的 Context Manager
+    
+    使用範例：
+        with DatabaseConnection() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM users")
+            results = cur.fetchall()
+            conn.commit()
+    """
+    def __init__(self):
+        self.conn = None
+        self.should_release = False
+    
+    def __enter__(self):
+        self.conn = get_connection()
+        self.should_release = True
+        return self.conn
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.conn:
+            if exc_type is not None:
+                # 發生例外時自動 rollback
+                self.conn.rollback()
+            if self.should_release:
+                release_connection(self.conn)
+        return False  # 不抑制例外
