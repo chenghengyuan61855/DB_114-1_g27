@@ -140,11 +140,14 @@ def ui_create_store(brand_id):
             store_id = db_create_store(brand_id, store_name, store_address, store_phone)
             print(f"\n✅ 門市新增成功（門市 ID: {store_id}）")
             
-            # 詢問是否初始化營業時間
-            init_hours = input("\n是否初始化營業時間（預設 10:00-22:00）？(y/n): ").strip().lower()
-            if init_hours == 'y':
+            # ✅ 改為自動初始化營業時間（不再詢問）
+            try:
                 count = db_init_store_hours(store_id)
-                print(f"✅ 營業時間初始化完成（{count} 天）")
+                print(f"✅ 營業時間已自動初始化（預設 10:00-22:00，共 {count} 天）")
+                print("   如需修改，請使用「管理門市營業時間」功能")
+            except Exception as e:
+                print(f"⚠️ 營業時間初始化失敗：{e}")
+                print("   請稍後手動設定營業時間")
         else:
             print("❌ 操作已取消")
     
