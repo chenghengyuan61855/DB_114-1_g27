@@ -33,9 +33,9 @@ def connect():
             host=DB_HOST,
             port=DB_PORT
         )
-        # ⚠️ 暫時使用 autocommit，避免 transaction 錯誤
-        # TODO: 未來所有函數加入完整的 try-except-rollback 後再改為 False
-        db.autocommit = True
+        # ✅ 改為手動管理 transaction（更符合資料庫最佳實踐）
+        # 所有寫入操作後需要呼叫 commit()，發生錯誤時呼叫 rollback()
+        db.autocommit = False
         cur = db.cursor()
         print("Successfully connected to DBMS.")
     except psycopg2.Error as e:
