@@ -34,6 +34,8 @@ def insert(table, data):
         result = conn.cur.fetchone()
         if result is None:
             raise RuntimeError("Insert operation failed, no row returned")
+        # ✅ 自動 commit（簡化上層呼叫）
+        conn.commit()
         return result
     except psycopg2.Error as e:
         # 如果發生錯誤，rollback 以清理 transaction 狀態
@@ -71,6 +73,8 @@ def update(table, data, conditions):
         row = conn.cur.fetchone()
         if row is None:
             raise RuntimeError("Update operation failed, no row returned")
+        # ✅ 自動 commit（簡化上層呼叫）
+        conn.commit()
         return row
     except psycopg2.Error as e:
         # 如果發生錯誤，rollback 以清理 transaction 狀態
@@ -186,7 +190,10 @@ def delete(table, conditions):
         sql = f"DELETE FROM {table}"
         sql, params = join_conditions(sql, table, conditions)
         conn.cur.execute(sql, params)
-        return conn.cur.rowcount
+        rowcount = conn.cur.rowcount
+        # ✅ 自動 commit（簡化上層呼叫）
+        conn.commit()
+        return rowcount
     except psycopg2.Error as e:
         conn.rollback()
         raise e
