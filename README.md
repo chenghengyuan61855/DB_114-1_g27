@@ -20,7 +20,7 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 - 使用者可以修改自己的使用者名稱、密碼及電子郵件信箱。
 - 使用者可以新增和修改個人常用外送地址。
 
-#### 瀏覽特定店家的商品菜單。
+#### 瀏覽特定店家的商品菜單
 
 - 使用者可以選擇品牌及店家，並瀏覽該店的菜單。
 
@@ -66,58 +66,20 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 
 ## 使用方法
 
-### 連線方法
-
-- 在 `db_conn.py` 設定**資料庫名稱** (DB_NAME)、**使用者名稱** (DB_USER)、**主機位置** (DB_HOST)及**通訊埠** (DB_PORT)
-- 在 `./`(root) 建立 `.env`：
-```env
-DB_PASSWORD=你的postgre密碼
-```
-**⚠️不要有空格或引號**
-(註：`.env` 會被 `.gitignore` 忽略，本地 postgre 密碼不會被 git 存取)
-
-### 安裝步驟
-
-詳細安裝說明請參考 **[INSTALLATION.md](INSTALLATION.md)**
-
-**快速安裝命令：**
-
-```bash
-# 1. 建立資料庫並匯入 Schema
-psql -U postgres -c "CREATE DATABASE databaseproject;"
-psql -U postgres -d databaseproject -f schema/001_init_mod1.sql
-psql -U postgres -d databaseproject -f schema/002_init_mod2.sql
-psql -U postgres -d databaseproject -f schema/003_init_mod3.sql
-
-# 2. 載入測試資料（包含自動序列修復）
-psql -U postgres -d databaseproject -f reset_database.sql
-psql -U postgres -d databaseproject -f test_data_new.sql
-
-# 3. 初始化門市營業時間
-python init_store_hours.py
-
-# 4. 啟動應用程式
-python main.py
-```
-
-**重要提示：** 
-- ✅ `test_data_new.sql` 已包含自動序列修復功能，載入後可直接使用
-- ✅ 包含 5,000 位使用者、50,000 筆訂單的完整測試資料
-- ✅ 如遇到問題，請參考 [INSTALLATION.md](INSTALLATION.md) 的故障排除章節
-
-### 操作系統
-
-執行 `main.py` 啟動系統：
-
-```bash
-python .\main.py
-```
-
-
+1. 使用備份檔 `daTEAbase.backup` 復原資料庫。
+2.  在 `db_conn.py` 設定**資料庫名稱** (DB_NAME)、**使用者名稱** (DB_USER)、**主機位置** (DB_HOST)及**通訊埠** (DB_PORT)。
+3.  在 `./`(root) 建立 `.env`：
+    ```env
+    DB_PASSWORD=你的postgre密碼
+    ```
+    **⚠️不要有空格或引號**  (註：`.env` 會被 `.gitignore` 忽略，本地 postgre 密碼不會被 git 存取)
+    
+4. 最後，執行 `main.py` 來啟動系統：
+   ```bash
+   python .\main.py
+   ``` 
 
 ## 技術細節
-
-- 使用 Socket 建立 client-server 連線，搭配 Multithreading 達成多人同時連線
 
 - 資料庫使用 PostgreSQL，使用套件 Psycopg2 對資料庫進行操作
 
