@@ -16,6 +16,7 @@ from db.order.place import (
     db_insert_order_item_option
 )
 from db.nosql_logger import mark_drink_as_submitted  # ← 新增
+from ui.order.helper import is_accepting_orders_check
 from ui.helper import cancel_check, clear_screen
 
 def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
@@ -75,6 +76,8 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
     try:
         if order_type.lower() == 'pickup':
             # 自取訂單
+            if not is_accepting_orders_check(store_id):
+                return
             order_id = db_place_order_pickup(
                 user_id, 
                 store_id, 
@@ -96,6 +99,9 @@ def ui_confirm_and_submit_order(user_id, store_id, order_type, selected_items):
             
             receiver_phone = input("Receiver Phone: ").strip()
             if cancel_check(receiver_phone, "Order Placement"):
+                return
+            
+            if not is_accepting_orders_check(store_id):
                 return
             
             order_id = db_place_order_delivery(

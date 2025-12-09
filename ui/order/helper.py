@@ -14,3 +14,14 @@ def go_back(step):
         return step - 1
     return 0
 
+def is_accepting_orders_check(store_id):
+    """
+    Checks if the store is currently accepting orders.
+    Returns True if accepting, False otherwise.
+    """
+    from db.store.fetch import db_fetch_is_accepting_orders
+    accepting = db_fetch_is_accepting_orders(store_id)
+    if not accepting:
+        print("❌ Store is not accepting orders at the moment.")
+        return False
+    return True
