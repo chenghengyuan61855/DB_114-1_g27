@@ -24,10 +24,7 @@ CREATE TABLE IF NOT EXISTS STORE
     created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	is_accepting_deliveries boolean NOT NULL DEFAULT true,
-	min_order_qty int,
 	min_order_total_price int,
-	delivery_threshold_logic VARCHAR(3),
-        CHECK (delivery_threshold_logic IN ('any', 'all')),
     CONSTRAINT STORE_pkey PRIMARY KEY (store_id),
     CONSTRAINT STORE_brand_id_fkey FOREIGN KEY (brand_id)
         REFERENCES BRAND (brand_id) MATCH SIMPLE
@@ -127,4 +124,5 @@ CREATE TABLE IF NOT EXISTS USER_ROLE_ASSIGNMENT
         OR
         (scope_type = 'store' AND store_id IS NOT NULL AND brand_id IS NULL)
     )
+
 );
