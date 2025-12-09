@@ -4,8 +4,9 @@
 # ASSISTED BY: Claude
 # ============================
 
-from db.crud import fetch, update
+from db.crud import fetch, update, lock_rows
 from db import conn
+from db.tx import transaction
 
 def db_fetch_pending_orders(store_id):
     """查詢門市的待處理訂單
@@ -103,7 +104,6 @@ def db_fetch_history_orders(store_id):
         for row in rows
     ]
 
-
 def db_accept_order(order_id):
     """接受訂單（僅限待處理狀態）
     
@@ -117,62 +117,48 @@ def db_accept_order(order_id):
         ValueError: 訂單不存在或狀態不正確
     """
     # ✅ 修正 Race Condition: 在 WHERE 條件中檢查狀態，確保原子性
-    sql = """
-        UPDATE ORDERS
-        SET order_status = 'accepted', accepted_at = CURRENT_TIMESTAMP
-        WHERE order_id = %s AND order_status = 'placed'
-        RETURNING *
-    """
-    conn.cur.execute(sql, (order_id,))
-    row = conn.cur.fetchone()
-    
-    if not row:
-        # 查詢訂單是否存在及當前狀態
-        conn.cur.execute("SELECT order_status FROM ORDERS WHERE order_id = %s", (order_id,))
-        result = conn.cur.fetchone()
-        if not result:
-            raise ValueError(f"訂單 {order_id} 不存在")
-        else:
-            raise ValueError(f"訂單狀態為「{result[0]}」，無法接受（只能接受待處理訂單）")
-    
-    conn.commit()
-    return row
-
+    with transaction():
+        # Lock the order row for update
+        locked = lock_rows("ORDERS", ["order_status"], {"order_id": order_id})
+        if not locked:
+            raise ValueError("Order not found")
+        status = locked[0][0]
+        if status != "placed":
+            raise ValueError("Order cannot be accepted: current status is not 'placed'")
+        # Update order to accepted
+        sql = """
+            UPDATE ORDERS
+            SET order_status = 'accepted', accepted_at = CURRENT_TIMESTAMP, rejected_reason = NULL
+            WHERE order_id = %s
+            RETURNING *
+        """
+        conn.cur.execute(sql, (order_id,))
+        row = conn.cur.fetchone()
+        if not row:
+            raise RuntimeError("Failed to accept order")
+        return row
 
 def db_reject_order(order_id, rejected_reason):
-    """拒絕訂單（僅限待處理狀態）
-    
-    Args:
-        order_id: 訂單 ID
-        rejected_reason: 拒絕原因
-    
-    Returns:
-        tuple: 更新後的訂單記錄
-        
-    Raises:
-        ValueError: 訂單不存在或狀態不正確
-    """
-    # ✅ 修正 Race Condition: 在 WHERE 條件中檢查狀態，確保原子性
-    sql = """
-        UPDATE ORDERS
-        SET order_status = 'rejected', rejected_reason = %s
-        WHERE order_id = %s AND order_status = 'placed'
-        RETURNING *
-    """
-    conn.cur.execute(sql, (rejected_reason, order_id))
-    row = conn.cur.fetchone()
-    
-    if not row:
-        # 查詢訂單是否存在及當前狀態
-        conn.cur.execute("SELECT order_status FROM ORDERS WHERE order_id = %s", (order_id,))
-        result = conn.cur.fetchone()
-        if not result:
-            raise ValueError(f"訂單 {order_id} 不存在")
-        else:
-            raise ValueError(f"訂單狀態為「{result[0]}」，無法拒絕（只能拒絕待處理訂單）")
-    
-    conn.commit()
-    return row
+    with transaction():
+        # Lock the order row for update
+        locked = lock_rows("ORDERS", ["order_status"], {"order_id": order_id})
+        if not locked:
+            raise ValueError("Order not found")
+        status = locked[0][0]
+        if status != "placed":
+            raise ValueError("Order cannot be rejected: current status is not 'placed'")
+        # Update order to rejected with reason
+        sql = """
+            UPDATE ORDERS
+            SET order_status = 'rejected', rejected_at = CURRENT_TIMESTAMP, rejected_reason = %s
+            WHERE order_id = %s
+            RETURNING *
+        """
+        conn.cur.execute(sql, (rejected_reason, order_id))
+        row = conn.cur.fetchone()
+        if not row:
+            raise RuntimeError("Failed to reject order")
+        return row
 
 
 def db_complete_order(order_id):
@@ -188,26 +174,34 @@ def db_complete_order(order_id):
         ValueError: 訂單不存在或狀態不正確
     """
     # ✅ 修正 Race Condition: 在 WHERE 條件中檢查狀態，確保原子性
-    sql = """
-        UPDATE ORDERS
-        SET order_status = 'completed', completed_at = CURRENT_TIMESTAMP
-        WHERE order_id = %s AND order_status = 'accepted'
-        RETURNING *
-    """
-    conn.cur.execute(sql, (order_id,))
-    row = conn.cur.fetchone()
+    with transaction():
+        # Lock order for update
+        locked = lock_rows("ORDERS", ["order_status"], {"order_id": order_id})
+        if not locked:
+            raise ValueError("Order not found")
+        status = locked[0][0]
+        if status != "accepted":
+            raise ValueError("Order cannot be completed: status is not 'accepted'")
+        sql = """
+            UPDATE ORDERS
+            SET order_status = 'completed', completed_at = CURRENT_TIMESTAMP
+            WHERE order_id = %s AND order_status = 'accepted'
+            RETURNING *
+        """
+        conn.cur.execute(sql, (order_id,))
+        row = conn.cur.fetchone()
     
-    if not row:
-        # 查詢訂單是否存在及當前狀態
-        conn.cur.execute("SELECT order_status FROM ORDERS WHERE order_id = %s", (order_id,))
-        result = conn.cur.fetchone()
-        if not result:
-            raise ValueError(f"訂單 {order_id} 不存在")
-        else:
-            raise ValueError(f"訂單狀態為「{result[0]}」，無法完成（只能完成已接受訂單）")
+        if not row:
+            # 查詢訂單是否存在及當前狀態
+            conn.cur.execute("SELECT order_status FROM ORDERS WHERE order_id = %s", (order_id,))
+            result = conn.cur.fetchone()
+            if not result:
+                raise ValueError(f"訂單 {order_id} 不存在")
+            else:
+                raise ValueError(f"訂單狀態為「{result[0]}」，無法完成（只能完成已接受訂單）")
     
-    conn.commit()
-    return row
+        conn.commit()
+        return row
 
 
 def db_cancel_order(order_id, user_id):
@@ -224,32 +218,38 @@ def db_cancel_order(order_id, user_id):
         ValueError: 訂單不存在、不屬於該使用者或狀態不正確
     """
     # ✅ 修正 Race Condition: 使用原子性的 UPDATE，在 WHERE 條件中同時檢查
-    sql_update = """
-        UPDATE ORDERS
-        SET order_status = 'cancelled'
-        WHERE order_id = %s 
-          AND user_id = %s
-          AND order_status = 'placed'
-        RETURNING *
-    """
-    conn.cur.execute(sql_update, (order_id, user_id))
-    row = conn.cur.fetchone()
+    with transaction():
+        # Lock order for update
+        locked = lock_rows("ORDERS", ["order_status", "user_id"], {"order_id": order_id, "user_id": user_id})
+        if not locked:
+            raise ValueError("Order not found or does not belong to user")
+        status = locked[0][0]
+        if status != "placed":
+            raise ValueError("Order cannot be cancelled: status is not 'placed'")
+        sql_update = """
+            UPDATE ORDERS
+            SET order_status = 'cancelled'
+            WHERE order_id = %s AND user_id = %s AND order_status = 'placed'
+            RETURNING *
+        """
+        conn.cur.execute(sql_update, (order_id, user_id))
+        row = conn.cur.fetchone()
     
-    if not row:
-        # 查詢失敗原因：訂單不存在 or 不屬於該使用者 or 狀態不對
-        conn.cur.execute(
-            "SELECT order_status FROM ORDERS WHERE order_id = %s AND user_id = %s", 
-            (order_id, user_id)
-        )
-        result = conn.cur.fetchone()
+        if not row:
+            # 查詢失敗原因：訂單不存在 or 不屬於該使用者 or 狀態不對
+            conn.cur.execute(
+                "SELECT order_status FROM ORDERS WHERE order_id = %s AND user_id = %s", 
+                (order_id, user_id)
+            )
+            result = conn.cur.fetchone()
         
-        if not result:
-            raise ValueError("訂單不存在或不屬於您")
-        else:
-            raise ValueError(f"訂單狀態為「{result[0]}」，無法取消（只能取消待處理訂單）")
+            if not result:
+                raise ValueError("訂單不存在或不屬於您")
+            else:
+                raise ValueError(f"訂單狀態為「{result[0]}」，無法取消（只能取消待處理訂單）")
     
-    conn.commit()
-    return row
+        conn.commit()
+        return row
 
 
 def db_fetch_user_orders(user_id):

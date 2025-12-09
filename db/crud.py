@@ -1,6 +1,23 @@
 import psycopg2
 import db.conn as conn
 from db.allowed import table_check, column_check, data_check, conditions_check
+from db.tx import transaction
+
+
+def lock_rows(table, columns, conditions):
+    '''
+    example: 
+    lock_rows("ORDERS", ["order_id", "user_id"], {"order_id": 1})
+    會鎖定 ORDERS 表中，order_id = 1 的那一行，並且只選取 order_id 與 user_id 兩個欄位。
+    這樣可以避免不必要的資料鎖定，提高效率。
+    '''
+    table_check(table)
+    sql = f"SELECT {', '.join(columns)} FROM {table}"
+    sql, params = join_conditions(sql, table, conditions)
+    sql += " FOR UPDATE"
+    conn.cur.execute(sql, params)
+    return conn.cur.fetchall()
+
 
 def join_conditions(sql: str, table, conditions=None):
     params = []
@@ -198,12 +215,3 @@ def delete(table, conditions):
         conn.rollback()
         raise e
 
-
-def lock_rows(table, conditions):
-    table_check(table)
-    conditions_check("Lock Rows", conditions)
-    sql = f"SELECT * FROM {table}"
-    sql, params = join_conditions(sql, table, conditions)
-    sql += " FOR UPDATE"
-    conn.cur.execute(sql, params)
-    return conn.cur.fetchall()
