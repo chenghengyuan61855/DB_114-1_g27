@@ -20,7 +20,7 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 - 使用者可以修改自己的使用者名稱、密碼及電子郵件信箱。
 - 使用者可以新增和修改個人常用外送地址。
 
-#### 瀏覽特定店家的商品菜單。
+#### 瀏覽特定店家的商品菜單
 
 - 使用者可以選擇品牌及店家，並瀏覽該店的菜單。
 
@@ -95,9 +95,6 @@ psql -U postgres -d databaseproject -f test_data_new.sql
 
 # 3. 初始化門市營業時間
 python init_store_hours.py
-
-# 4. 啟動應用程式
-python main.py
 ```
 
 **重要提示：** 
@@ -107,7 +104,7 @@ python main.py
 
 ### 操作系統
 
-執行 `main.py` 啟動系統：
+最後，執行 `main.py` 來啟動系統：
 
 ```bash
 python .\main.py
@@ -116,8 +113,6 @@ python .\main.py
 
 
 ## 技術細節
-
-- 使用 Socket 建立 client-server 連線，搭配 Multithreading 達成多人同時連線
 
 - 資料庫使用 PostgreSQL，使用套件 Psycopg2 對資料庫進行操作
 
