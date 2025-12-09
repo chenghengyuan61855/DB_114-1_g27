@@ -12,12 +12,16 @@ def ui_login_user():
     # -------- Phone --------
     while True:
         user_phone = input("Enter phone number (09xxxxxxxx): ").strip()
-        if(cancel_check(user_phone, "Login")):
+        
+        # ✅ 優先檢查取消命令
+        if cancel_check(user_phone, "Login"):
             return
         
+        # ✅ 再檢查格式
         if not phone_check(user_phone):
             continue
 
+        # ✅ 最後檢查是否已註冊
         if not exists("APP_USER", {"user_phone": user_phone}):
             print("❌ Phone number not registered.")
             print("If you don't have an account, please type ':q' to cancel and create a new user.")

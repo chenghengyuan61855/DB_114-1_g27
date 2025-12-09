@@ -29,6 +29,10 @@ def name_check(user_name: str) -> bool:
     return True
 
 def phone_check(user_phone: str) -> bool:
+    # ✅ 不處理取消命令，交給 cancel_check() 處理
+    if user_phone.lower() == ":q":
+        return False
+    
     if len(user_phone) != 10 or not user_phone.isdigit() or not user_phone.startswith("09"):
         print("❌ Invalid phone number format, expected 10 digits starting with '09'.")
         return False

@@ -1,7 +1,10 @@
 import os
 def cancel_check(input_str: str, ui_type: str) -> bool:
-    if input_str.strip() == ":q":
-        print(f"{ui_type} cancelled.")
+    # ✅ Debug: 印出接收到的輸入
+    # print(f"[DEBUG] cancel_check received: '{input_str}' (len={len(input_str)})")
+    
+    if input_str.strip().lower() == ":q":  # ✅ 加上 .lower() 確保大小寫不敏感
+        print(f"❌ {ui_type} cancelled.")
         return True
     return False
 
