@@ -4,7 +4,13 @@
 # ASSISTED BY: Claude
 # ============================
 
-from db.crud import fetch, update, lock_rows
+# ============================
+# CO-AUTHOR: YUAN
+# MODIFIED DATE: 2025-12-10
+# MODIFICATION: fix transaction error on accept, reject, complete, cancel order functions
+# ============================
+
+from db.crud import fetch, update, lock_rows, selective_fetch
 from db import conn
 from db.tx import transaction
 from datetime import datetime
@@ -142,14 +148,7 @@ def db_reject_order(order_id, rejected_reason):
         if status != "placed":
             raise ValueError("Order cannot be rejected: current status is not 'placed'")
         # Update order to rejected with reason
-        sql = """
-            UPDATE ORDERS
-            SET order_status = 'rejected', rejected_at = CURRENT_TIMESTAMP, rejected_reason = %s
-            WHERE order_id = %s
-            RETURNING *
-        """
-        conn.cur.execute(sql, (rejected_reason, order_id))
-        row = conn.cur.fetchone()
+        row = update("ORDERS", {"order_status": "rejected", "rejected_reason": rejected_reason, "rejected_at": datetime.now()}, {"order_id": order_id})
         if not row:
             raise RuntimeError("Failed to reject order")
         return row
@@ -176,19 +175,11 @@ def db_complete_order(order_id):
         status = locked[0][0]
         if status != "accepted":
             raise ValueError("Order cannot be completed: status is not 'accepted'")
-        sql = """
-            UPDATE ORDERS
-            SET order_status = 'completed', completed_at = CURRENT_TIMESTAMP
-            WHERE order_id = %s AND order_status = 'accepted'
-            RETURNING *
-        """
-        conn.cur.execute(sql, (order_id,))
-        row = conn.cur.fetchone()
+        row = update("ORDERS", {"order_status": "completed", "completed_at": datetime.now()}, {"order_id": order_id, "order_status": "accepted"})
     
         if not row:
             # 查詢訂單是否存在及當前狀態
-            conn.cur.execute("SELECT order_status FROM ORDERS WHERE order_id = %s", (order_id,))
-            result = conn.cur.fetchone()
+            result = selective_fetch("ORDERS", ["order_status"], {"order_id": order_id})
             if not result:
                 raise ValueError(f"訂單 {order_id} 不存在")
             else:
