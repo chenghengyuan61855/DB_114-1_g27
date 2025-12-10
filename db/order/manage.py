@@ -126,13 +126,7 @@ def db_accept_order(order_id):
         if status != "placed":
             raise ValueError("Order cannot be accepted: current status is not 'placed'")
         # Update order to accepted
-        sql = """
-            UPDATE ORDERS
-            SET order_status = 'accepted', accepted_at = CURRENT_TIMESTAMP, rejected_reason = NULL
-            WHERE order_id = %s
-            RETURNING *
-        """
-        conn.cur.execute(sql, (order_id,))
+        update("ORDERS", {"order_status": "accepted", "accepted_at": "CURRENT_TIMESTAMP"}, {"order_id": order_id})
         row = conn.cur.fetchone()
         if not row:
             raise RuntimeError("Failed to accept order")
