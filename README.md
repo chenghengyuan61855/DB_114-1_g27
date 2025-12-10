@@ -83,11 +83,11 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 
 - 資料庫使用 PostgreSQL，使用套件 Psycopg2 對資料庫進行操作
 
-- **交易管理**：本系統於 `./db/conn.py` 中將資料庫連線設定為 `autocommit = False`，確保所有資料庫操作皆預設在交易（Transaction）中執行。基本的 CRUD 函式如 `insert`、`update`、`delete` 若遇到錯誤，會自動呼叫 `db.rollback()`撤回此次交易（其中 `db` 為 Psycopg2 的 connection 物件，負責資料庫連線），以取消先前所有尚未提交的資料庫異動。由於本系統各功能模組普遍引用基礎 CRUD 函式，因此自然繼承了上述交易管理機制。
+- **交易管理**：本系統於 `./db/conn.py` 中將資料庫連線設定為 `autocommit = False`，確保所有資料庫操作皆預設在交易（Transaction）中執行。基本的 CRUD 函式（如 `insert`、`update`、`delete` ）若遇到錯誤，會自動呼叫 `db.rollback()`撤回此次交易（其中 `db` 為 Psycopg2 的 connection 物件，負責資料庫連線），以取消先前所有尚未提交的資料庫異動。由於本系統各功能模組普遍引用基礎 CRUD 函式，因此自然繼承了上述交易管理機制。
 
     - 可參考： `./db/crud.py`
 
-- **併行控制**：針對【更新訂單狀態】功能，為避免不同店員對訂單進行不同操作或顧客取消訂單時被接受，造成資料衝突，在使用者對狀態為 `placed` 的訂單按下確定更改相關資訊時，系統會針對此訂單加鎖，更改狀態為 `accepted`、`rejected`或`canceled`後並且解鎖。
+- **併行控制**：針對【更新訂單狀態】功能，為避免不同店員對訂單進行不同操作或顧客取消訂單時被接受，造成資料衝突，在使用者對狀態為 `placed` 的訂單按下確定更改相關資訊時，系統會針對此訂單加鎖，更改狀態為 `accepted`、`rejected` 或 `canceled` 後並且解鎖。
 
   - 可參考 `./db/crud.py` 中的 `lock_rows()`、`./db/tx.py` 以及 `./db/order/manage.py 中的  `db_accept_order()`、`db_reject_order()` 和 `db_cancel_order()`。
 
