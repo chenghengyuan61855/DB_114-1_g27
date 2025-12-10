@@ -7,6 +7,7 @@
 from db.crud import fetch, update, lock_rows
 from db import conn
 from db.tx import transaction
+from datetime import datetime
 
 def db_fetch_pending_orders(store_id):
     """查詢門市的待處理訂單
@@ -126,7 +127,7 @@ def db_accept_order(order_id):
         if status != "placed":
             raise ValueError("Order cannot be accepted: current status is not 'placed'")
         # Update order to accepted
-        update("ORDERS", {"order_status": "accepted", "accepted_at": "CURRENT_TIMESTAMP"}, {"order_id": order_id})
+        update("ORDERS", {"order_status": "accepted", "accepted_at": datetime.now()}, {"order_id": order_id})
         row = conn.cur.fetchone()
         if not row:
             raise RuntimeError("Failed to accept order")
