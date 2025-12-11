@@ -67,7 +67,7 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 ## 使用方法
 
 1. 建立資料庫並依序執行 `./intialization` 資料夾內的檔案：
-``` bash
+``` psql
 CREATE DATABASE daTEAbase;
 
 psql -U postgres -d databaseproject -f ./intialization/001_init_schema_mod1.sql
