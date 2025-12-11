@@ -66,9 +66,19 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 
 ## 使用方法
 
-1. 使用備份檔 `daTEAbase.backup` 復原資料庫。
-2.  在 `db_conn.py` 設定**資料庫名稱** (DB_NAME)、**使用者名稱** (DB_USER)、**主機位置** (DB_HOST)及**通訊埠** (DB_PORT)。
-3.  在 `./`(root) 建立 `.env`：
+1. 建立資料庫並依序執行 `./intialization` 資料夾內的檔案：
+``` bash
+CREATE DATABASE daTEAbase;
+
+psql -U postgres -d databaseproject -f ./intialization/001_init_schema_mod1.sql
+psql -U postgres -d databaseproject -f ./intialization/002_init_schema_mod2.sql
+psql -U postgres -d databaseproject -f ./intialization/003_init_schema_mod3.sql
+psql -U postgres -d databaseproject -f ./intialization/004_init_reset_database.sql
+psql -U postgres -d databaseproject -f ./intialization/005_init_test_data_new.sql
+```
+
+2. 在 `db_conn.py` 設定**資料庫名稱** (DB_NAME)、**使用者名稱** (DB_USER)、**主機位置** (DB_HOST)及**通訊埠** (DB_PORT)。
+3. 在 `./`(root) 建立 `.env`：
     ```env
     DB_PASSWORD=你的postgres密碼
     ```
@@ -77,7 +87,12 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 4. 最後，執行 `main.py` 來啟動系統：
    ```bash
    python .\main.py
-   ``` 
+   ```
+
+建議用以下帳號來測試不同身分的使用者：
+- 一般使用者：電話：0911111111、密碼：aaa111。
+- 店家員工：電話：0945678901、密碼：staff123。
+- 品牌管理員：電話：0956789012、密碼：manager123。
 
 ## 技術細節
 
