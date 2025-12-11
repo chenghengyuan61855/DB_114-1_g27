@@ -2,9 +2,9 @@
 
 ## 專案簡介
 
-在經營手搖飲品牌的路上，最讓人頭痛的，從來不是「茶要不要加冰」，而是系統各自為政、資料七零八落、訂單和庫存永遠對不起來。如果你也有這些困擾，就來認識 daTEAbase 吧。
+在經營手搖飲品牌的路上，最讓人頭痛的，從來不是「茶要不要加冰」，而是系統各自為政、資料七零八落。如果你也有這些困擾，就來認識 daTEAbase 吧！
 
-daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，支援「多品牌、多門市」的集團式架構、商品客製化、即時庫存連動、從下單到評分的完整訂單流程，讓經營回到該有的順手與清醒。
+daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，支援「多品牌、多門市」的集團式架構、商品客製化、從下單到評分的完整訂單流程，讓經營回到該有的順手與清醒。
 
 ## 使用者功能
 
@@ -70,14 +70,14 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
    ``` psql
    CREATE DATABASE daTEAbase;
    
-   psql -U postgres -d databaseproject -f ./intialization/001_init_schema_mod1.sql
-   psql -U postgres -d databaseproject -f ./intialization/002_init_schema_mod2.sql
-   psql -U postgres -d databaseproject -f ./intialization/003_init_schema_mod3.sql
-   psql -U postgres -d databaseproject -f ./intialization/004_init_reset_database.sql
-   psql -U postgres -d databaseproject -f ./intialization/005_init_test_data_new.sql
+   psql -U postgres -d daTEAbase -f ./intialization/001_init_schema_mod1.sql
+   psql -U postgres -d daTEAbase -f ./intialization/002_init_schema_mod2.sql
+   psql -U postgres -d daTEAbase -f ./intialization/003_init_schema_mod3.sql
+   psql -U postgres -d daTEAbase -f ./intialization/004_init_reset_database.sql
+   psql -U postgres -d daTEAbase -f ./intialization/005_init_test_data_new.sql
    ```
 
-2. 在 `db_conn.py` 設定**資料庫名稱** (DB_NAME)、**使用者名稱** (DB_USER)、**主機位置** (DB_HOST)及**通訊埠** (DB_PORT)。
+2. 在 `db/conn.py` 設定**資料庫名稱** (DB_NAME)、**使用者名稱** (DB_USER)、**主機位置** (DB_HOST)及**通訊埠** (DB_PORT)。
 3. 在 `./`(root) 建立 `.env`：
     ```env
     DB_PASSWORD=你的postgres密碼
@@ -86,7 +86,7 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
     
 4. 最後，執行 `main.py` 來啟動系統：
    ```bash
-   python .\main.py
+   python ./main.py
    ```
 
 註：建議用以下帳號來測試不同身分的使用者：
@@ -96,7 +96,7 @@ daTEAbase 是一個專為手搖飲與連鎖餐飲打造的營運管理平台，�
 
 ## 技術細節
 
-- 資料庫使用 PostgreSQL，使用套件 Psycopg2 對資料庫進行操作
+- 資料庫使用 PostgreSQL，使用套件 Psycopg2 對資料庫進行操作。
 
 - **交易管理**：本系統於 `./db/conn.py` 中將資料庫連線設定為 `autocommit = False`，確保所有資料庫操作皆預設在交易（Transaction）中執行。基本的 CRUD 函式（如 `insert`、`update`、`delete` ）若遇到錯誤，會自動呼叫 `db.rollback()`撤回此次交易（其中 `db` 為 Psycopg2 的 connection 物件，負責資料庫連線），以取消先前所有尚未提交的資料庫異動。由於本系統各功能模組普遍引用基礎 CRUD 函式，因此自然繼承了上述交易管理機制。
 
